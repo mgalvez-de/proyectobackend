@@ -1,19 +1,18 @@
 <?php
 
 namespace App\View\Components;
+
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class Table extends Component
+class Navbar extends Component
 {
-
-    public function __construct(
-
-        public array $headers = ['ID', 'Tipo', 'Marca', 'Opciones'],
-        public string $variant = 'danger',
-        public string $size = 'md'
-    ) {
+    /**
+     * Create a new component instance.
+     */
+    public function __construct()
+    {
         //
     }
 
@@ -22,6 +21,6 @@ class Table extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.table');
+        return view('components.navbar');
     }
 }
