@@ -65,10 +65,8 @@
 
                                     <!-- Ver -->
 
-                                    <button onclick="openShow()"
-                                        class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                                    <x-button variant="secondary" size="sm" type="button" onclick="openShow()"
                                         title="Ver marca">
-
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -76,35 +74,31 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
-
-                                    </button>
+                                    </x-button>
 
 
                                     <!-- boton editar -->
 
-                                    <button onclick='openEdit({{ $brand->id }}, "{{ $brand->name }}")'>
-
+                                    <button onclick='openEdit({{ $brand->id }}, "{{ $brand->name }}")'
+                                        class="p-1.5 bg-yellow-400 text-gray-900 hover:bg-yellow-500 rounded transition-colors"
+                                        title="Editar marca">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
-
                                     </button>
 
 
                                     <!-- boton eliminar -->
 
-                                    <button onclick="openDelete({{ $brand->id }})"
-                                        class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
-                                        title="Eliminar marca">
-
+                                    <x-button variant="danger" size="sm" type="button"
+                                        onclick="openDelete({{ $brand->id }})" title="Eliminar marca">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v3m1-10V4a1 1 0 00-1-1h-4a1 1 0 01-1 1v3M4 7h16">
                                             </path>
                                         </svg>
-
-                                    </button>
+                                    </x-button>
 
                                 </div>
 
@@ -129,7 +123,7 @@
 
                 <!-- Encabezado -->
 
-                <div class="bg-blue-900 px-6 py-5 flex items-start justify-between">
+                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
 
                     <div>
 
@@ -143,17 +137,13 @@
 
                     </div>
 
-                    <button type="button" onclick="closeCreate()"
-                        class="text-blue-100 hover:text-white hover:bg-blue-800 rounded-lg p-1.5 transition-colors cursor-pointer">
-
+                    <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()"
+                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
-
                         </svg>
-
-                    </button>
+                    </x-button>
 
                 </div>
 
@@ -182,19 +172,13 @@
 
                     <div class="flex justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-200">
 
-                        <button type="button" onclick="closeCreate()"
-                            class="px-4 py-2 text-sm font-medium text-slate-700
-                    bg-white border border-slate-300 rounded-lg
-                    hover:bg-slate-100 transition-colors cursor-pointer">
+                        <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()">
                             Cancelar
-                        </button>
+                        </x-button>
 
-                        <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white
-                    bg-blue-900 rounded-lg hover:bg-blue-800
-                    transition-colors cursor-pointer">
+                        <x-button size="sm" type="submit">
                             Guardar marca
-                        </button>
+                        </x-button>
 
                     </div>
 
@@ -210,8 +194,15 @@
             <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
                 <div class="flex justify-between items-center bg-blue-900 text-white px-4 py-2 rounded-t-lg">
                     <h2 class="text-lg font-semibold">Detalles de la marca</h2>
-                    <button onclick="document.getElementById('showModal').classList.add('hidden')"
-                        class="text-white hover:text-gray-300">&times;</button>
+
+                    <x-button variant="secondary" size="sm" type="button" onclick="closeShow()"
+                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </x-button>
+
                 </div>
                 <div class="p-4">
                     <p><strong>ID:</strong> 1</p>
@@ -242,17 +233,13 @@
 
                     </div>
 
-                    <button type="button" onclick="closeEdit()"
-                        class="text-blue-100 hover:text-white hover:bg-blue-800 rounded-lg p-1.5 transition-colors cursor-pointer">
-
+                    <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()"
+                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
-
                         </svg>
-
-                    </button>
+                    </x-button>
 
                 </div>
 
@@ -281,17 +268,13 @@
 
                     <div class="flex justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-200">
 
-                        <button type="button" onclick="closeEdit()"
-                            class="px-4 py-2 text-sm font-medium text-slate-700
-                    bg-white border border-slate-300 rounded-lg
-                    hover:bg-slate-100 transition-colors cursor-pointer">
+                        <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()">
                             Cancelar
-                        </button>
+                        </x-button>
 
-                        <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-900 rounded-lg hover:bg-blue-800 transition-colors cursor-pointer">
+                        <x-button size="sm" type="submit">
                             Editar marca
-                        </button>
+                        </x-button>
 
                     </div>
 
