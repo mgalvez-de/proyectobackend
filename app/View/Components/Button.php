@@ -14,7 +14,8 @@ class Button extends Component
     public function __construct(
 
     public string $variant = 'primary',
-    public string $size='md'
+    public string $size='md',
+    public ?string $href = null
     )
     {
         //
