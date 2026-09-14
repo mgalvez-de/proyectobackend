@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\StorageController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -19,6 +20,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('brands', BrandController::class);
+Route::resource('storages', StorageController::class);
 
 require __DIR__ . '/auth.php';
 
