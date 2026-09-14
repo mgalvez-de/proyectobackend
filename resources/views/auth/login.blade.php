@@ -4,138 +4,75 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Login</title>
-
+    <title>Página de Login</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-white text-gray-900">
+<body class="bg-[#f8f9fa] text-gray-900">
 
-    <!-- Navbar -->
-    <header class="bg-red-600 border-b border-red-700">
-        <div class="px-8 py-3">
-            <h1 class="text-2xl font-semibold text-white">
-                UCSC
-            </h1>
-        </div>
-    </header>
+    <div class="min-h-screen flex items-center justify-center px-4 py-8">
+        <div class="w-full max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
-
-    <!-- Contenido -->
-    <main class="flex justify-center items-center px-6 py-12">
-
-        <div class="w-full max-w-6xl">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-
-                <!-- Espacio para el logo -->
-                <div class="flex justify-center items-center h-96">
-
-                    <!-- logo -->
-                    (logo aca)
+                <div class="mb-4 md:mb-0 flex justify-center">
+                    <img src="{{ asset('images/ucsc-logo-horizontal.png') }}" alt="UCSC" class="w-full max-w-md">
                 </div>
 
+                <div class="w-full">
+                    <h2 class="text-2xl font-bold text-center mb-3">
+                        Sistema de Gestión de dispositivos Tecnológicos
+                        Universidad Católica de la Santísima Concepción
+                    </h2>
+                    <p class="text-center text-gray-600 mb-3">Por favor, inicia sesión</p>
 
-                <!-- Login -->
-                <div class="w-full max-w-lg mx-auto">
-
-                    <!-- Título -->
-                    <div class="text-center mb-8">
-
-                        <h2 class="text-3xl font-bold">
-                            Sistema de gestión de dispositivos
-                            tecnológicos de UCSC
-                        </h2>
-
-                        <p class="text-xl text-gray-700 mt-5">
-                            Por favor, inicia sesión
-                        </p>
-
-                    </div>
-
-
-                    <!-- Formulario -->
-                    <div class="border border-gray-700 rounded shadow">
-
-                        <!-- Título formulario -->
-                        <div class="bg-red-600 text-white text-center py-3">
-                            <h3 class="text-xl font-semibold">
-                                Ingrese sus credenciales
-                            </h3>
+                    @if ($errors->any())
+                        <div class="mb-3 text-center bg-red-50 border border-[#D12421] text-[#D12421] rounded shadow-sm px-4 py-2">
+                            {{ $errors->first() }}
                         </div>
+                    @endif
 
+                    <x-card variant="danger">
+                        <x-slot name="header">Ingrese sus credenciales</x-slot>
 
-                        <div class="p-6">
+                        <form method="POST" action="{{ route('login') }}">
+                            @csrf
 
-                            <form method="POST" action="{{ route('login') }}">
+                            <div class="mb-3">
+                                <label for="rut" class="block text-gray-600 mb-1">
+                                    Rut (sin puntos ni coma)
+                                </label>
+                                <input id="rut" type="text" name="rut" value="{{ old('rut') }}"
+                                    placeholder="Ej: 22220848"
+                                    required autofocus autocomplete="username"
+                                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#D12421] focus:ring-1 focus:ring-[#D12421]">
+                                @error('rut')
+                                    <p class="text-[#D12421] text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                                @csrf
+                            <div class="mb-4">
+                                <label for="password" class="block text-gray-600 mb-1">Contraseña</label>
+                                <input id="password" type="password" name="password"
+                                    placeholder="Ej: ab12345"
+                                    required autocomplete="current-password"
+                                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-[#D12421] focus:ring-1 focus:ring-[#D12421]">
+                                @error('password')
+                                    <p class="text-[#D12421] text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                                <!-- RUT -->
-                                <div class="mb-5">
-
-                                    <label for="email" class="block text-lg font-medium mb-2">
-                                        Rut (sin puntos ni coma)
-                                    </label>
-
-                                    <input id="email" type="text" name="email" value="{{ old('email') }}"
-                                        required autofocus autocomplete="username"
-                                        class="w-full border border-gray-700 rounded px-3 py-2 text-lg focus:outline-none focus:border-red-600">
-
-                                    @error('email')
-                                        <p class="text-red-600 text-sm mt-1">
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-
-                                </div>
-
-
-                                <!-- Contraseña -->
-                                <div class="mb-6">
-
-                                    <label for="password" class="block text-lg font-medium mb-2">
-                                        Contraseña
-                                    </label>
-
-                                    <input id="password" type="password" name="password" required
-                                        autocomplete="current-password"
-                                        class="w-full border border-gray-700 rounded px-3 py-2 text-lg focus:outline-none focus:border-red-600">
-
-                                    @error('password')
-                                        <p class="text-red-600 text-sm mt-1">
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-
-                                </div>
-
-
-                                <!-- Botón -->
-                                <div class="flex justify-center">
-
-                                    <button type="submit"
-                                        class="bg-red-600 hover:bg-red-700 text-white font-semibold text-lg px-6 py-2 rounded">
-                                        Iniciar sesión
-                                    </button>
-
-                                </div>
-
-                            </form>
-
-                        </div>
-
-                    </div>
-
+                            <div class="text-center">
+                                <x-button type="submit" variant="danger" size="lg" class="w-full md:w-auto">
+                                    Iniciar sesión
+                                </x-button>
+                            </div>
+                        </form>
+                    </x-card>
                 </div>
 
             </div>
-
         </div>
-
-    </main>
+    </div>
 
 </body>
-
 </html>

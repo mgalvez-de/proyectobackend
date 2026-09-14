@@ -1,62 +1,54 @@
 <x-app-layout>
 
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
-
     <x-navbar />
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div class="bg-white p-6 shadow-sm sm:rounded-lg">
+            <h2 class="text-2xl font-bold text-gray-800 mb-1">
+                Bienvenido, {{ auth()->user()->name }}
+            </h2>
+            <p class="text-gray-600 mb-8">
+                Selecciona un departamento para ver su inventario de dispositivos.
+            </p>
 
-                <div class="flex flex-wrap gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                    <x-table>
+                <x-card variant="danger" image="https://facultades.ucsc.cl/content/uploads/sites/25/2023/06/IngEjInformatica-1.jpg">
+                    <x-slot name="header">Informática</x-slot>
 
-    <tr class="*:text-gray-900 *:first:font-medium">
-        <td class="px-3 py-2 whitespace-nowrap">
-            Nandor
-        </td>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Inventario de equipos del departamento de Informática.
+                    </p>
 
-        <td class="px-3 py-2 whitespace-nowrap">
-            04/06/1262
-        </td>
+                    <x-button href="#" variant="danger" class="w-full">
+                        Ver todo
+                    </x-button>
+                </x-card>
 
-        <td class="px-3 py-2 whitespace-nowrap">
-            Vampire Warrior
-        </td>
+                <x-card variant="danger" image="https://upload.wikimedia.org/wikipedia/commons/d/df/Biblioteca_Barzio.jpg">
+                    <x-slot name="header">Biblioteca</x-slot>
 
-        <td class="px-3 py-2 whitespace-nowrap">
-            $0
-        </td>
-    </tr>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Inventario de equipos disponibles en la Biblioteca.
+                    </p>
 
-    <tr class="*:text-gray-900 *:first:font-medium">
-        <td class="px-3 py-2 whitespace-nowrap">
-            Laszlo
-        </td>
+                    <x-button href="#" variant="danger" class="w-full">
+                        Ver todo
+                    </x-button>
+                </x-card>
 
-        <td class="px-3 py-2 whitespace-nowrap">
-            19/10/1678
-        </td>
+                <x-card variant="danger" image="https://kdoce.cl/wp-content/uploads/2017/03/01-2.jpg">
+                    <x-slot name="header">Sala de Computación</x-slot>
 
-        <td class="px-3 py-2 whitespace-nowrap">
-            Vampire Gentleman
-        </td>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Inventario de equipos de la Sala de Computación.
+                    </p>
 
-        <td class="px-3 py-2 whitespace-nowrap">
-            $0
-        </td>
-    </tr>
-
-</x-table>
-
-
-                </div>
+                    <x-button href="#" variant="danger" class="w-full">
+                        Ver todo
+                    </x-button>
+                </x-card>
 
             </div>
 
@@ -64,9 +56,3 @@
     </div>
 
 </x-app-layout>
-
-<div>
-    <a href="{{ route('brands.index') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-    Ir a Marcas
-    </a>
-</div>

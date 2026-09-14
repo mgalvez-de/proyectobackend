@@ -3,7 +3,7 @@
         'primary' => 'bg-blue-600 text-white',
         'secondary' => 'bg-gray-600 text-white',
         'success' => 'bg-green-600 text-white',
-        'danger' => 'bg-red-600 text-white',
+        'danger' => 'bg-[#D12421] text-white',
         'warning' => 'bg-yellow-400 text-gray-900',
         'info' => 'bg-cyan-500 text-white',
     ];
