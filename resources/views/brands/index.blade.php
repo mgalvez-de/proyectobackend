@@ -65,8 +65,11 @@
 
                                     <!-- Ver -->
 
-                                    <x-button variant="secondary" size="sm" type="button" onclick="openShow()"
+                                    <button type="button"
+                                        onclick='openShow({{ $brand->id }}, "{{ $brand->name }}")'
+                                        class="p-1.5 bg-gray-500 text-white hover:bg-gray-600 rounded transition-colors"
                                         title="Ver marca">
+
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -74,7 +77,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
-                                    </x-button>
+
+                                    </button>
 
 
                                     <!-- boton editar -->
@@ -192,7 +196,7 @@
         <div id="showModal"
             class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-                <div class="flex justify-between items-center bg-blue-900 text-white px-4 py-2 rounded-t-lg">
+                <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
                     <h2 class="text-lg font-semibold">Detalles de la marca</h2>
 
                     <x-button variant="secondary" size="sm" type="button" onclick="closeShow()"
@@ -205,8 +209,8 @@
 
                 </div>
                 <div class="p-4">
-                    <p><strong>ID:</strong> 1</p>
-                    <p><strong>Nombre:</strong> Lenovo</p>
+                    <p><strong>ID:</strong> <span id="showId"></span></p>
+                    <p><strong>Nombre:</strong> <span id="showName"></span></p>
                 </div>
             </div>
         </div>
@@ -219,7 +223,7 @@
 
                 <!-- Encabezado -->
 
-                <div class="bg-blue-900 px-6 py-5 flex items-start justify-between">
+                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
 
                     <div>
 
@@ -304,10 +308,11 @@
                     .classList.add('hidden');
             }
 
-            function openShow() {
-                document
-                    .getElementById('showModal')
-                    .classList.remove('hidden');
+            function openShow(id, name) {
+                document.getElementById('showModal').classList.remove('hidden');
+
+                document.getElementById('showId').textContent = id;
+                document.getElementById('showName').textContent = name;
             }
 
             function closeShow() {
