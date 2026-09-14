@@ -28,29 +28,16 @@
                             class="absolute right-0 mt-2 w-64 bg-white text-gray-800 rounded shadow-lg border border-gray-200 z-10 p-3 space-y-3">
 
                             <div>
-                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">
-                                    Hardware y Especificaciones
-                                </p>
-
-                                <a href="{{ route('brands.index') }}" class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Marcas
-                                </a>
-
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Tipos de Dispositivo
-                                </a>
-
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Capacidad de RAM
-                                </a>
-
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Almacenamiento
-                                </a>
-
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Procesadores
-                                </a>
+                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Hardware y
+                                    Especificaciones</p>
+                                <a href="{{ route('brands.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">Marcas</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de
+                                    Dispositivo</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Capacidad de RAM</a>
+                                <a href="{{ route('storages.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">Almacenamiento</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Procesadores</a>
                             </div>
 
                             <div>
