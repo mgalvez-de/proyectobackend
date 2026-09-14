@@ -15,12 +15,16 @@
                     <details class="relative">
                         <summary class="cursor-pointer list-none hover:text-red-100">Agregar opciones</summary>
 
-                        <div class="absolute right-0 mt-2 w-64 bg-white text-gray-800 rounded shadow-lg border border-gray-200 z-10 p-3 space-y-3">
+                        <div
+                            class="absolute right-0 mt-2 w-64 bg-white text-gray-800 rounded shadow-lg border border-gray-200 z-10 p-3 space-y-3">
 
                             <div>
-                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Hardware y Especificaciones</p>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Marcas</a>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de Dispositivo</a>
+                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Hardware y
+                                    Especificaciones</p>
+                                <a href="{{ route('brands.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">Marcas</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de
+                                    Dispositivo</a>
                                 <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Capacidad de RAM</a>
                                 <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Almacenamiento</a>
                                 <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Procesadores</a>
@@ -28,17 +32,21 @@
 
                             <div>
                                 <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Disponibilidad</p>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Estados de Equipo</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Estados de
+                                    Equipo</a>
                             </div>
 
                             <div>
                                 <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Soporte y Tickets</p>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Reportes de hardware</a>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Reportes de software</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Reportes de
+                                    hardware</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Reportes de
+                                    software</a>
                             </div>
 
                             <div class="border-t border-gray-200 pt-2">
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Registrar usuario</a>
+                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Registrar
+                                    usuario</a>
                             </div>
 
                         </div>

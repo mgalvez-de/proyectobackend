@@ -1,4 +1,5 @@
 <x-app-layout>
+    @include('components.navbar')
     <div class="max-w-5xl mx-auto">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
 
@@ -6,7 +7,7 @@
             <!--encabezado-->
 
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">
+                <h1 class="text-3xl font-bold text-gray-800 mt-6">
                     Marcas
                 </h1>
 
