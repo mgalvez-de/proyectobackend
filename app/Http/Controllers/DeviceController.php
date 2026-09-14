@@ -3,63 +3,72 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\Brand;
+use App\Models\Storage;
+use App\Models\Department;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $department = Department::where('name', 'Informática')->firstOrFail();
+
+        $devices = Device::with(['brand', 'storage'])
+            ->where('department_id', $department->id)
+            ->get();
+
+        $brands = Brand::all();
+        $storages = Storage::all();
+
+        return view('informatica.index', compact(
+            'devices',
+            'brands',
+            'storages',
+            'department'
+        ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'name' => 'required',
+            'brand_id' => 'required|exists:brands,id',
+            'storage_id' => 'required|exists:storages,id',
+            'department_id' => 'required|exists:departments,id'
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Device $device)
-    {
-        //
-    }
+        Device::create([
+            'name' => $request->name,
+            'brand_id' => $request->brand_id,
+            'storage_id' => $request->storage_id,
+            'department_id' => $request->department_id
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Device $device)
-    {
-        //
+        return redirect()->route('informatica.index');
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Device $device)
     {
-        //
-    }
+        $request->validate([
+            'name' => 'required',
+            'brand_id' => 'required|exists:brands,id',
+            'storage_id' => 'required|exists:storages,id',
+            'department_id' => 'required|exists:departments,id'
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Device $device)
+        $device->update([
+            'name' => $request->name,
+            'brand_id' => $request->brand_id,
+            'storage_id' => $request->storage_id,
+            'department_id' => $request->department_id
+        ]);
+
+        return redirect()->route('informatica.index');
+    }
+    public function destroy(string $id)
     {
-        //
+        Device::find($id)->delete();
+
+        return redirect()->route('informatica.index');
     }
 }
