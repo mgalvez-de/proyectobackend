@@ -34,7 +34,8 @@
                                     class="block px-2 py-1 rounded hover:bg-gray-100">Marcas</a>
                                 <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de
                                     Dispositivo</a>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Capacidad de RAM</a>
+                                <a href="{{ route('rams.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">Capacidad de RAM</a>
                                 <a href="{{ route('storages.index') }}"
                                     class="block px-2 py-1 rounded hover:bg-gray-100">Almacenamiento</a>
                                 <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Procesadores</a>

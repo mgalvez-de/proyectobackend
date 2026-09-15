@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\DeviceController;
-
+use App\Http\Controllers\RamController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/informatica', [DeviceController::class, 'index'])
         ->name('informatica.index');
 
-
+    Route::resource('rams', RamController::class);
 
     Route::resource('devices', DeviceController::class);
 });

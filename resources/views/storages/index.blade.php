@@ -27,7 +27,7 @@
 
         <div class="overflow-x-auto">
 
-            <table class="w-full min-w-[600px] text-left text-sm text-slate-600">
+            <table class="w-full bg-white min-w-[600px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>

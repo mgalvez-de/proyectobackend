@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->foreignId('brand_id')->constrained('brands');
             $table->foreignId('storage_id')->constrained('storages');
             $table->foreignId('department_id')->constrained('departments');
-
+            $table->foreignId('ram_id')->constrained('rams');
             $table->timestamps();
         });
     }

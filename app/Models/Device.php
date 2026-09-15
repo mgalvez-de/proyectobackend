@@ -3,15 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Ram;
 class Device extends Model
 {
     protected $fillable = [
         'name',
         'brand_id',
         'storage_id',
+        'ram_id',
         'department_id'
     ];
+
+    public function ram()
+    {
+        return $this->belongsTo(Ram::class);
+    }
 
     public function brand()
     {

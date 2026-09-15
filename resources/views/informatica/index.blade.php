@@ -30,11 +30,19 @@
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
 
                     <tr>
+
                         <th class="px-6 py-4">ID</th>
+
                         <th class="px-6 py-4">Nombre</th>
+
                         <th class="px-6 py-4">Marca</th>
+
                         <th class="px-6 py-4">Almacenamiento</th>
+
+                        <th class="px-6 py-4">RAM</th>
+
                         <th class="px-6 py-4 text-center">Acciones</th>
+
                     </tr>
 
                 </thead>
@@ -57,8 +65,11 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                {{ $device->storage->type }}
-                                {{ $device->storage->capacity }}
+                                {{ $device->storage->type }} - {{ $device->storage->capacity }}
+                            </td>
+
+                            <td class="px-6 py-4">
+                                {{ $device->ram->type }} - {{ $device->ram->capacity }}
                             </td>
 
                             <td class="px-6 py-4 text-center">
@@ -73,6 +84,7 @@
                                             @json($device->name),
                                             @json($device->brand->name),
                                             @json($device->storage->type . ' - ' . $device->storage->capacity),
+                                            @json($device->ram->type . ' - ' . $device->ram->capacity),
                                             @json($device->department->name)
                                         )'
                                         class="p-1.5 bg-gray-500 text-white hover:bg-gray-600 rounded transition-colors"
@@ -98,7 +110,8 @@
                                             {{ $device->id }},
                                             @json($device->name),
                                             {{ $device->brand_id }},
-                                            {{ $device->storage_id }}
+                                            {{ $device->storage_id }},
+                                            {{ $device->ram_id }}
                                         )'
                                         class="p-1.5 bg-yellow-400 text-gray-900 hover:bg-yellow-500 rounded transition-colors"
                                         title="Editar dispositivo">
@@ -137,7 +150,7 @@
 
                         <tr>
 
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                 No hay dispositivos registrados.
                             </td>
 
@@ -155,100 +168,143 @@
 
     <!-- MODAL AGREGAR -->
 
-    <div id="createModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div id="createModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
 
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
 
-            <div class="flex justify-between items-center mb-5">
+            <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
 
-                <h2 class="text-xl font-bold text-gray-800">
+                <h2 class="text-lg font-semibold">
                     Añadir dispositivo
                 </h2>
 
-                <button type="button" onclick="closeCreate()" class="text-gray-500 hover:text-gray-700 text-xl">
-                    ×
-                </button>
+                <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()"
+                    class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+
+                    </svg>
+
+                </x-button>
 
             </div>
 
-            <form method="POST" action="{{ route('devices.store') }}">
+            <div class="p-4">
 
-                @csrf
+                <form method="POST" action="{{ route('devices.store') }}">
 
-                <div class="mb-4">
+                    @csrf
 
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Nombre
-                    </label>
+                    <div class="mb-4">
 
-                    <input type="text" name="name" required
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500"
-                        placeholder="Ej: PC-Informática-01">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Nombre
+                        </label>
 
-                </div>
+                        <input type="text" name="name" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500"
+                            placeholder="Ej: PC-Informática-01">
 
-                <div class="mb-4">
+                    </div>
 
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Marca
-                    </label>
 
-                    <select name="brand_id" required
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                    <div class="mb-4">
 
-                        <option value="">
-                            Seleccione una marca
-                        </option>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Marca
+                        </label>
 
-                        @foreach ($brands as $brand)
-                            <option value="{{ $brand->id }}">
-                                {{ $brand->name }}
+                        <select name="brand_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+
+                            <option value="">
+                                Seleccione una marca
                             </option>
-                        @endforeach
 
-                    </select>
+                            @foreach ($brands as $brand)
+                                <option value="{{ $brand->id }}">
+                                    {{ $brand->name }}
+                                </option>
+                            @endforeach
 
-                </div>
+                        </select>
 
-                <div class="mb-4">
+                    </div>
 
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Almacenamiento
-                    </label>
 
-                    <select name="storage_id" required
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                    <div class="mb-4">
 
-                        <option value="">
-                            Seleccione almacenamiento
-                        </option>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Almacenamiento
+                        </label>
 
-                        @foreach ($storages as $storage)
-                            <option value="{{ $storage->id }}">
-                                {{ $storage->type }} - {{ $storage->capacity }}
+                        <select name="storage_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+
+                            <option value="">
+                                Seleccione almacenamiento
                             </option>
-                        @endforeach
 
-                    </select>
+                            @foreach ($storages as $storage)
+                                <option value="{{ $storage->id }}">
+                                    {{ $storage->type }} - {{ $storage->capacity }}
+                                </option>
+                            @endforeach
 
-                </div>
+                        </select>
 
-                <input type="hidden" name="department_id" value="{{ $department->id }}">
+                    </div>
 
-                <div class="flex justify-end gap-2 mt-6">
 
-                    <button type="button" onclick="closeCreate()"
-                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
-                        Cancelar
-                    </button>
+                    <div class="mb-4">
 
-                    <x-button type="submit" variant="danger">
-                        Guardar
-                    </x-button>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            RAM
+                        </label>
 
-                </div>
+                        <select name="ram_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
 
-            </form>
+                            <option value="">
+                                Seleccione RAM
+                            </option>
+
+                            @foreach ($rams as $ram)
+                                <option value="{{ $ram->id }}">
+                                    {{ $ram->type }} - {{ $ram->capacity }}
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    <input type="hidden" name="department_id" value="{{ $department->id }}">
+
+
+                    <div class="flex justify-end gap-2 mt-6">
+
+                        <x-button type="button" variant="secondary" size="sm" onclick="closeCreate()">
+
+                            Cancelar
+
+                        </x-button>
+
+                        <x-button type="submit" variant="danger" size="sm">
+
+                            Guardar
+
+                        </x-button>
+
+                    </div>
+
+                </form>
+
+            </div>
 
         </div>
 
@@ -304,6 +360,11 @@
                 </p>
 
                 <p>
+                    <strong>RAM:</strong>
+                    <span id="showRam"></span>
+                </p>
+
+                <p>
                     <strong>Departamento:</strong>
                     <span id="showDepartment"></span>
                 </p>
@@ -348,6 +409,7 @@
                     @csrf
                     @method('PUT')
 
+
                     <div class="mb-4">
 
                         <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -358,6 +420,7 @@
                             class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
 
                     </div>
+
 
                     <div class="mb-4">
 
@@ -378,6 +441,7 @@
 
                     </div>
 
+
                     <div class="mb-4">
 
                         <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -397,16 +461,42 @@
 
                     </div>
 
+
+                    <div class="mb-4">
+
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            RAM
+                        </label>
+
+                        <select id="editRam" name="ram_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+
+                            @foreach ($rams as $ram)
+                                <option value="{{ $ram->id }}">
+                                    {{ $ram->type }} - {{ $ram->capacity }}
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
                     <input type="hidden" name="department_id" value="{{ $department->id }}">
+
 
                     <div class="flex justify-end gap-2 mt-6">
 
                         <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()">
+
                             Cancelar
+
                         </x-button>
 
                         <x-button type="submit" variant="danger" size="sm">
+
                             Editar dispositivo
+
                         </x-button>
 
                     </div>
@@ -442,6 +532,7 @@
 
         }
 
+
         function closeCreate() {
 
             document
@@ -451,7 +542,8 @@
 
         }
 
-        function openShow(id, name, brand, storage, department) {
+
+        function openShow(id, name, brand, storage, ram, department) {
 
             document
                 .getElementById('showModal')
@@ -459,12 +551,19 @@
                 .remove('hidden');
 
             document.getElementById('showId').textContent = id;
+
             document.getElementById('showName').textContent = name;
+
             document.getElementById('showBrand').textContent = brand;
+
             document.getElementById('showStorage').textContent = storage;
+
+            document.getElementById('showRam').textContent = ram;
+
             document.getElementById('showDepartment').textContent = department;
 
         }
+
 
         function closeShow() {
 
@@ -475,7 +574,8 @@
 
         }
 
-        function openEdit(id, name, brandId, storageId) {
+
+        function openEdit(id, name, brandId, storageId, ramId) {
 
             document
                 .getElementById('editModal')
@@ -483,11 +583,17 @@
                 .remove('hidden');
 
             document.getElementById('editName').value = name;
+
             document.getElementById('editBrand').value = brandId;
+
             document.getElementById('editStorage').value = storageId;
+
+            document.getElementById('editRam').value = ramId;
+
             document.getElementById('editForm').action = '/devices/' + id;
 
         }
+
 
         function closeEdit() {
 
@@ -498,11 +604,13 @@
 
         }
 
+
         function openDelete(id) {
 
             if (confirm('¿Estás seguro de que deseas eliminar este dispositivo?')) {
 
                 document.getElementById('deleteForm').action = '/devices/' + id;
+
                 document.getElementById('deleteForm').submit();
 
             }
