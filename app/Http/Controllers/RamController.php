@@ -31,7 +31,7 @@ class RamController extends Controller
             'capacity' => $request->capacity
         ]);
 
-        return redirect()->route('rams.index');
+        return redirect()->route('rams.index')->with('success', 'RAM creada correctamente.');
     }
 
     public function show(string $id)
@@ -63,6 +63,6 @@ class RamController extends Controller
     {
         Ram::find($id)->delete();
 
-        return redirect()->route('rams.index');
+        return redirect()->route('rams.index')->with('success', 'RAM eliminada correctamente.');
     }
 }

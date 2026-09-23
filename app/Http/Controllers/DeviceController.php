@@ -50,7 +50,7 @@ class DeviceController extends Controller
             'department_id' => $request->department_id
         ]);
 
-        return redirect()->route('informatica.index');
+        return redirect()->route('informatica.index')->with('success', 'Dispositivo creado correctamente.');
     }
 
     public function update(Request $request, Device $device)
@@ -78,6 +78,6 @@ class DeviceController extends Controller
     {
         Device::find($id)->delete();
 
-        return redirect()->route('informatica.index');
+        return redirect()->route('informatica.index')->with('success', 'Dispositivo eliminado correctamente.');
     }
 }

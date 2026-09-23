@@ -39,7 +39,7 @@ class StorageController extends Controller
             'capacity' => $request->capacity,
         ]);
 
-        return redirect()->route('storages.index');
+        return redirect()->route('storages.index')->with('success', 'Almacenamiento creado correctamente.');
     }
 
     /**
@@ -83,6 +83,6 @@ class StorageController extends Controller
     {
         Storage::find($id)->delete();
 
-        return redirect()->route('storages.index');
+        return redirect()->route('storages.index')->with('success', 'Almacenamiento eliminado correctamente.');
     }
 }

@@ -37,7 +37,7 @@ class BrandController extends Controller
             'name' => $request->name
         ]);
 
-        return redirect()->route('brands.index');
+        return redirect()->route('brands.index')->with('success', 'Marca creada correctamente.');
     }
 
     /**
@@ -79,6 +79,6 @@ class BrandController extends Controller
     {
         Brand::find($id)->delete();
 
-        return redirect()->route('brands.index');
+        return redirect()->route('brands.index')->with('success', 'Marca eliminada correctamente.');
     }
 }

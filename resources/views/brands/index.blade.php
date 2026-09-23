@@ -337,11 +337,34 @@
             }
 
             function openDelete(id) {
-                if (confirm('¿Estás seguro de que deseas eliminar esta marca?')) {
-                    document.getElementById('deleteForm').action = '/brands/' + id;
-                    document.getElementById('deleteForm').submit();
-                }
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará la marca permanentemente.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#D12421',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteForm').action = '/brands/' + id;
+                        document.getElementById('deleteForm').submit();
+                    }
+                });
             }
+
+            @if (session('success'))
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Listo!',
+                        text: '{{ session('success') }}',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+            @endif
         </script>
     </div>
 </x-app-layout>
