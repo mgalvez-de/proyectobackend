@@ -32,13 +32,14 @@
                                     Especificaciones</p>
                                 <a href="{{ route('brands.index') }}"
                                     class="block px-2 py-1 rounded hover:bg-gray-100">Marcas</a>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de
-                                    Dispositivo</a>
+                                <a href="{{ route('device-types.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de Dispositivo</a>
                                 <a href="{{ route('rams.index') }}"
                                     class="block px-2 py-1 rounded hover:bg-gray-100">Capacidad de RAM</a>
                                 <a href="{{ route('storages.index') }}"
                                     class="block px-2 py-1 rounded hover:bg-gray-100">Almacenamiento</a>
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">Procesadores</a>
+                                <a href="{{ route('processors.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">Procesadores</a>
                             </div>
 
                             <div>
@@ -46,7 +47,8 @@
                                     Disponibilidad
                                 </p>
 
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
+                                <a href="{{ route('device-statuses.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">
                                     Estados de Equipo
                                 </a>
                             </div>
@@ -56,11 +58,13 @@
                                     Soporte y Tickets
                                 </p>
 
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
+                                <a href="{{ route('hardware-failures.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">
                                     Reportes de hardware
                                 </a>
 
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
+                                <a href="{{ route('software-failures.index') }}"
+                                    class="block px-2 py-1 rounded hover:bg-gray-100">
                                     Reportes de software
                                 </a>
                             </div>
