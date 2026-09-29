@@ -25,6 +25,11 @@ class UserSeeder extends Seeder
 			['name' => 'Supervisor', 'email' => 'supervisor@ucsc.cl', 'rol' => 'supervisor', 'password' => Hash::make('12345678')]
 		);
 
+        User::updateOrCreate(
+			['rut' => '222222222'],
+			['name' => 'Supervisor', 'email' => 'supervisor@ucsc.cl', 'rol' => 'supervisor', 'password' => Hash::make('12345678')]
+		);
+
 		User::updateOrCreate(
 			['rut' => '222222222'],
 			['name' => 'Estudiante', 'email' => 'estudiante@ucsc.cl', 'rol' => 'estudiante', 'password' => Hash::make('12345678')]
