@@ -33,6 +33,14 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'rut.required' => 'Ingrese su RUT.',
+            'password.required' => 'Ingrese su contraseña.',
+        ];
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *
@@ -46,7 +54,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'rut' => trans('auth.failed'),
+                'rut' => 'El RUT o la contraseña son incorrectos. Intente nuevamente.',
             ]);
         }
 
@@ -69,10 +77,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'rut' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'rut' => "Demasiados intentos de inicio de sesión. Intente nuevamente en {$seconds} segundos.",
         ]);
     }
 

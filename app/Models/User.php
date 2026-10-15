@@ -23,6 +23,7 @@ class User extends Authenticatable
         'rut',
         'email',
         'rol',
+        'department_id',
         'password',
     ];
 
@@ -47,5 +48,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function canAccessDepartment(Department $department): bool
+    {
+        if ($this->rol === 'admin') {
+            return true;
+        }
+
+        return $this->rol === 'supervisor' && (int) $this->department_id === (int) $department->id;
     }
 }

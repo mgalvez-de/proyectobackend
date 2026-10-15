@@ -9,7 +9,9 @@
 
             <div class="flex items-center gap-4 flex-wrap justify-end text-sm">
 
-                <a href="{{ route('dashboard') }}" class="hover:text-red-100">Inicio</a>
+                @if (auth()->user()?->rol !== 'supervisor')
+                    <a href="{{ route('dashboard') }}" class="hover:text-red-100">Inicio</a>
+                @endif
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -70,7 +72,7 @@
                             </div>
 
                             <div class="border-t border-gray-200 pt-2">
-                                <a href="#" class="block px-2 py-1 rounded hover:bg-gray-100">
+                                <a href="{{ route('users.index') }}" class="block px-2 py-1 rounded hover:bg-gray-100">
                                     Registrar usuario
                                 </a>
                             </div>

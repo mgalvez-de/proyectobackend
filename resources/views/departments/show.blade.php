@@ -4,9 +4,11 @@
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
-            Volver al dashboard
-        </a>
+        @if (auth()->user()->rol === 'admin')
+            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
+                Volver al dashboard
+            </a>
+        @endif
 
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mt-3 mb-6">
 
@@ -206,7 +208,7 @@
 
                         <input type="text" name="name" required
                             class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500"
-                            placeholder="Ej: PC-Informática-01">
+                            placeholder="Ej: PC-{{ $department->name }}-01">
 
                     </div>
 

@@ -11,15 +11,17 @@ use App\Http\Controllers\ProcessorController;
 use App\Http\Controllers\DeviceStatusController;
 use App\Http\Controllers\HardwareFailureController;
 use App\Http\Controllers\SoftwareFailureController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('auth.login');
 });
 
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 
 Route::middleware('auth')->group(function () {
@@ -37,12 +39,13 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('storages', StorageController::class);
 
-    Route::get('/informatica', [DeviceController::class, 'index'])
-        ->name('informatica.index');
+    Route::get('/departamentos/{department}', [DeviceController::class, 'index'])
+        ->name('departments.show');
 
     Route::resource('rams', RamController::class);
 
-    Route::resource('devices', DeviceController::class);
+    Route::resource('devices', DeviceController::class)
+        ->only(['store', 'update', 'destroy']);
 
     Route::resource('device-types', DeviceTypeController::class);
 
@@ -53,6 +56,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('hardware-failures', HardwareFailureController::class);
 
     Route::resource('software-failures', SoftwareFailureController::class);
+
+    Route::middleware('role:admin')->group(function () {
+        Route::resource('users', UserController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+    });
 });
 
 
