@@ -13,6 +13,8 @@ use App\Http\Controllers\HardwareFailureController;
 use App\Http\Controllers\SoftwareFailureController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\HistoryController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -44,6 +46,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('it', DeviceTypeController::class);
 
+    Route::resource('tickets', TicketController::class);
+
+
     Route::resource('rams', RamController::class);
 
     Route::resource('devices', DeviceController::class)
@@ -58,6 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('hardware-failures', HardwareFailureController::class);
 
     Route::resource('software-failures', SoftwareFailureController::class);
+
+    Route::get('/departments/{department}/history', [HistoryController::class, 'index'])
+        ->name('departments.history');
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)

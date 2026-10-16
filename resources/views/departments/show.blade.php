@@ -18,9 +18,16 @@
                 Departamento de {{ $department->name }}
             </h1>
 
-            <x-button type="button" variant="danger" onclick="openCreate()">
-                + Añadir dispositivo
-            </x-button>
+            <div class="flex gap-3">
+                <a href="{{ route('departments.history', $department->id) }}"
+                    class="inline-flex items-center justify-center rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition">
+                    Ir al historial
+                </a>
+
+                <x-button type="button" variant="danger" onclick="openCreate()">
+                    + Añadir dispositivo
+                </x-button>
+            </div>
 
         </div>
 
@@ -428,6 +435,13 @@
                 </div>
 
 
+                <a id="createTicketButton" href="#"
+                    class="mt-4 inline-block w-full text-center bg-red-700 text-white py-2 px-4 rounded hover:bg-red-800 transition-colors">
+                    Crear ticket para este dispositivo
+                </a>
+
+
+
             </div>
 
         </div>
@@ -632,11 +646,10 @@
 
         }
 
-
-
-
         function openShow(id, name, brand, deviceType, storage, processor, ram) {
             document.getElementById('showModal').classList.remove('hidden');
+
+            document.getElementById('createTicketButton').href = '/tickets?device_id=' + id;
 
             document.getElementById('showId').textContent = id;
             document.getElementById('showName').textContent = name;
