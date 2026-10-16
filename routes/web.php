@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/departamentos/{department}', [DeviceController::class, 'index'])
         ->name('departments.show');
 
+    Route::resource('it', DeviceTypeController::class);
+
     Route::resource('rams', RamController::class);
 
     Route::resource('devices', DeviceController::class)

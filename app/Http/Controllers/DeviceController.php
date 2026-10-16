@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Processor;
+use App\Models\DeviceType;
 use App\Models\Device;
 use App\Models\Brand;
 use App\Models\Storage;
@@ -15,19 +17,30 @@ class DeviceController extends Controller
     {
         $this->authorizeDepartment($department);
 
-        $devices = Device::with(['brand', 'storage', 'ram', 'department'])
+        $devices = Device::with([
+            'brand',
+            'storage',
+            'ram',
+            'department',
+            'processor',
+            'deviceType'
+        ])
             ->where('department_id', $department->id)
             ->get();
 
         $brands = Brand::all();
         $storages = Storage::all();
         $rams = Ram::all();
+        $processors = Processor::all();
+        $deviceTypes = DeviceType::all();
 
         return view('departments.show', compact(
             'devices',
             'brands',
             'storages',
             'rams',
+            'processors',
+            'deviceTypes',
             'department'
         ));
     }
@@ -39,6 +52,8 @@ class DeviceController extends Controller
             'brand_id' => 'required|exists:brands,id',
             'storage_id' => 'required|exists:storages,id',
             'ram_id' => 'required|exists:rams,id',
+            'processor_id' => 'required|exists:processors,id',
+            'device_type_id' => 'required|exists:device_types,id',
             'department_id' => 'required|exists:departments,id'
         ]);
 
@@ -51,10 +66,14 @@ class DeviceController extends Controller
             'brand_id' => $request->brand_id,
             'storage_id' => $request->storage_id,
             'ram_id' => $request->ram_id,
+            'processor_id' => $request->processor_id,
+            'device_type_id' => $request->device_type_id,
             'department_id' => $department->id
         ]);
 
-        return redirect()->route('departments.show', $department)->with('success', 'Dispositivo creado correctamente.');
+        return redirect()
+            ->route('departments.show', $department)
+            ->with('success', 'Dispositivo creado correctamente.');
     }
 
     public function update(Request $request, Device $device)
@@ -65,17 +84,23 @@ class DeviceController extends Controller
             'name' => 'required',
             'brand_id' => 'required|exists:brands,id',
             'storage_id' => 'required|exists:storages,id',
-            'ram_id' => 'required|exists:rams,id'
+            'ram_id' => 'required|exists:rams,id',
+            'processor_id' => 'required|exists:processors,id',
+            'device_type_id' => 'required|exists:device_types,id'
         ]);
 
         $device->update([
             'name' => $request->name,
             'brand_id' => $request->brand_id,
             'storage_id' => $request->storage_id,
-            'ram_id' => $request->ram_id
+            'ram_id' => $request->ram_id,
+            'processor_id' => $request->processor_id,
+            'device_type_id' => $request->device_type_id
         ]);
 
-        return redirect()->route('departments.show', $device->department_id);
+        return redirect()
+            ->route('departments.show', $device->department_id)
+            ->with('success', 'Dispositivo actualizado correctamente.');
     }
 
     public function destroy(Device $device)
@@ -86,11 +111,17 @@ class DeviceController extends Controller
 
         $device->delete();
 
-        return redirect()->route('departments.show', $departmentId)->with('success', 'Dispositivo eliminado correctamente.');
+        return redirect()
+            ->route('departments.show', $departmentId)
+            ->with('success', 'Dispositivo eliminado correctamente.');
     }
 
     private function authorizeDepartment(Department $department): void
     {
-        abort_unless(auth()->user()->canAccessDepartment($department), 403, 'No tienes acceso a este departamento.');
+        abort_unless(
+            auth()->user()->canAccessDepartment($department),
+            403,
+            'No tienes acceso a este departamento.'
+        );
     }
 }

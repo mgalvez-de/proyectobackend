@@ -2,6 +2,8 @@
 
     <x-navbar />
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         @if (auth()->user()->rol === 'admin')
@@ -80,29 +82,26 @@
 
                                     <!-- VER -->
 
+
                                     <button type="button"
-                                        onclick='openShow(
-                                            {{ $device->id }},
-                                            @json($device->name),
-                                            @json($device->brand->name),
-                                            @json($device->storage->type . ' - ' . $device->storage->capacity),
-                                            @json($device->ram->type . ' - ' . $device->ram->capacity),
-                                            @json($device->department->name)
-                                        )'
+                                        onclick='openShow({{ $device->id }},
+                                        @json($device->name),
+                                         @json($device->brand?->name ?? 'Sin marca'),
+                                         @json($device->deviceType?->name ?? 'Sin tipo'),
+                                         @json(($device->storage?->type ?? 'Sin almacenamiento') . ' - ' . ($device->storage?->capacity ?? '')),
+                                         @json(($device->processor?->brand ?? 'Sin procesador') . ' - ' . ($device->processor?->model ?? '')),
+                                        @json(($device->ram?->type ?? 'Sin RAM') . ' - ' . ($device->ram?->capacity ?? ''))
+                                                         )'
                                         class="p-1.5 bg-gray-500 text-white hover:bg-gray-600 rounded transition-colors"
                                         title="Ver dispositivo">
-
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-
                                         </svg>
-
                                     </button>
+
 
 
                                     <!-- EDITAR -->
@@ -236,7 +235,43 @@
 
                     </div>
 
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Tipo de dispositivo
+                        </label>
 
+                        <select name="device_type_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+
+                            <option value="">Seleccione un tipo de dispositivo</option>
+
+                            @foreach ($deviceTypes as $deviceType)
+                                <option value="{{ $deviceType->id }}">
+                                    {{ $deviceType->name }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Procesador
+                        </label>
+
+                        <select name="processor_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+
+                            <option value="">Seleccione un tipo de procesador</option>
+
+                            @foreach ($processors as $processor)
+                                <option value="{{ $processor->id }}">
+                                    {{ $processor->brand }} - {{ $processor->model }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
                     <div class="mb-4">
 
                         <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -259,6 +294,7 @@
                         </select>
 
                     </div>
+
 
 
                     <div class="mb-4">
@@ -357,8 +393,18 @@
                 </p>
 
                 <p>
+                    <strong>Tipo:</strong>
+                    <span id="showDeviceType"></span>
+                </p>
+
+                <p>
                     <strong>Almacenamiento:</strong>
                     <span id="showStorage"></span>
+                </p>
+
+                <p>
+                    <strong>Procesador:</strong>
+                    <span id="showProcessor"></span>
                 </p>
 
                 <p>
@@ -366,10 +412,21 @@
                     <span id="showRam"></span>
                 </p>
 
-                <p>
-                    <strong>Departamento:</strong>
-                    <span id="showDepartment"></span>
-                </p>
+
+                <div class="mt-6 border-t border-gray-200 pt-5">
+                    <h3 class="text-sm font-semibold text-gray-700 text-center mb-3">
+                        Código QR del dispositivo
+                    </h3>
+
+                    <div class="flex justify-center">
+                        <div id="deviceQRCode" class="bg-white p-3 rounded-lg border border-gray-200">
+                        </div>
+                    </div>
+
+                    <p id="qrDeviceCode" class="text-center text-sm text-gray-500 mt-2">
+                    </p>
+                </div>
+
 
             </div>
 
@@ -442,6 +499,37 @@
                         </select>
 
                     </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Tipo de dispositivo
+                        </label>
+
+                        <select id="editDeviceType" name="device_type_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            @foreach ($deviceTypes as $deviceType)
+                                <option value="{{ $deviceType->id }}">
+                                    {{ $deviceType->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Procesador
+                        </label>
+
+                        <select id="editProcessor" name="processor_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            @foreach ($processors as $processor)
+                                <option value="{{ $processor->id }}">
+                                    {{ $processor->brand }} - {{ $processor->model }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
 
 
                     <div class="mb-4">
@@ -545,26 +633,37 @@
         }
 
 
-        function openShow(id, name, brand, storage, ram, department) {
 
-            document
-                .getElementById('showModal')
-                .classList
-                .remove('hidden');
+
+        function openShow(id, name, brand, deviceType, storage, processor, ram) {
+            document.getElementById('showModal').classList.remove('hidden');
 
             document.getElementById('showId').textContent = id;
-
             document.getElementById('showName').textContent = name;
-
             document.getElementById('showBrand').textContent = brand;
-
+            document.getElementById('showDeviceType').textContent = deviceType;
             document.getElementById('showStorage').textContent = storage;
-
+            document.getElementById('showProcessor').textContent = processor;
             document.getElementById('showRam').textContent = ram;
 
-            document.getElementById('showDepartment').textContent = department;
+            const qrContainer = document.getElementById('deviceQRCode');
+            const qrCode = 'Dispositivo:' + name;
 
+            qrContainer.innerHTML = '';
+
+            document.getElementById('qrDeviceCode').textContent = qrCode;
+
+            new QRCode(qrContainer, {
+                text: qrCode,
+                width: 160,
+                height: 160,
+                colorDark: '#111827',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
         }
+
+
 
 
         function closeShow() {
@@ -626,7 +725,7 @@
         }
 
         @if (session('success'))
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Listo!',
