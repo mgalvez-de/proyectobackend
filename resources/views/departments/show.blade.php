@@ -193,7 +193,8 @@
 
     <!-- MODAL AGREGAR -->
 
-    <div id="createModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="createModal"
+        class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
 
@@ -375,7 +376,8 @@
 
     <!-- MODAL VER -->
 
-    <div id="showModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="showModal"
+        class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
 
@@ -468,7 +470,8 @@
 
     <!-- MODAL EDITAR -->
 
-    <div id="editModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="editModal"
+        class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
 
@@ -666,7 +669,8 @@
         function openShow(id, name, brand, deviceType, storage, processor, ram) {
             document.getElementById('showModal').classList.remove('hidden');
 
-            document.getElementById('createTicketButton').href = '/tickets?device_id=' + id;
+            document.getElementById('createTicketButton').href =
+                '/tickets?device_id=' + id;
 
             document.getElementById('showId').textContent = id;
             document.getElementById('showName').textContent = name;
@@ -676,15 +680,19 @@
             document.getElementById('showProcessor').textContent = processor;
             document.getElementById('showRam').textContent = ram;
 
+            // generar el enlace al formulario del dispositivo
             const qrContainer = document.getElementById('deviceQRCode');
-            const qrCode = 'Dispositivo:' + name;
+
+
+            // reemplaza esta ip por la dirección ipv4 de tu pc
+            const baseUrl = 'http://192.168.1.22:8000';
+            const ticketUrl = baseUrl + '/tickets/create?device_id=' + id;
 
             qrContainer.innerHTML = '';
 
-            document.getElementById('qrDeviceCode').textContent = qrCode;
 
             new QRCode(qrContainer, {
-                text: qrCode,
+                text: ticketUrl,
                 width: 160,
                 height: 160,
                 colorDark: '#111827',
@@ -753,7 +761,6 @@
                 }
             });
         }
-
     </script>
 
 </x-app-layout>

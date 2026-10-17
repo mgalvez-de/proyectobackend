@@ -18,9 +18,43 @@ class TicketController extends Controller
         $problemType = request('problem_type');
         $deviceId = request('device_id');
 
-        // ficha del dispositivo que se muestra arriba del formulario
         $device = $deviceId
-            ? Device::with(['brand', 'deviceType', 'processor', 'storage', 'ram', 'department'])->find($deviceId)
+            ? Device::with([
+                'brand',
+                'deviceType',
+                'processor',
+                'storage',
+                'ram',
+                'department'
+            ])->find($deviceId)
+            : null;
+
+        return view('tickets.index', compact(
+            'softwareFailures',
+            'hardwareFailures',
+            'problemType',
+            'deviceId',
+            'device'
+        ));
+    }
+
+    public function create(Request $request)
+    {
+        $softwareFailures = SoftwareFailure::all();
+        $hardwareFailures = HardwareFailure::all();
+
+        $problemType = $request->query('problem_type');
+        $deviceId = $request->query('device_id');
+
+        $device = $deviceId
+            ? Device::with([
+                'brand',
+                'deviceType',
+                'processor',
+                'storage',
+                'ram',
+                'department'
+            ])->find($deviceId)
             : null;
 
         return view('tickets.index', compact(
@@ -44,7 +78,7 @@ class TicketController extends Controller
 
         $device = Device::findOrFail($validated['device_id']);
 
-        $ticket = Ticket::create([
+        Ticket::create([
             'device_id' => $device->id,
             'user_id' => auth()->id(),
             'type' => 'reactive',
@@ -55,8 +89,25 @@ class TicketController extends Controller
             'comments' => $validated['comments'] ?? null,
         ]);
 
+        $mensaje = 'Ticket creado correctamente.';
+
+        $rol = auth()->user()->rol;
+
+        if ($rol === 'estudiante') {
+            return redirect()
+                ->route('dashboard')
+                ->with('success', $mensaje);
+        }
+
+        if ($rol === 'supervisor') {
+            return redirect()
+                ->route('departments.history.supervisor', $device->department_id)
+                ->with('success', $mensaje);
+        }
+
+        // Administrador: historial de cualquier departamento
         return redirect()
             ->route('departments.history', $device->department_id)
-            ->with('success', 'Ticket creado correctamente.');
+            ->with('success', $mensaje);
     }
 }
