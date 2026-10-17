@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="$department->displayName()">
 
     <x-navbar />
 
@@ -7,36 +7,58 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         @if (auth()->user()->rol === 'admin')
-            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
-                Volver al dashboard
-            </a>
+            <x-breadcrumbs :items="['Inicio' => route('dashboard'), $department->displayName() => null]" />
         @endif
 
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mt-3 mb-6">
+        <!-- BANNER DEL DEPARTAMENTO -->
 
-            <h1 class="text-3xl font-bold text-gray-800">
-                Departamento de {{ $department->name }}
-            </h1>
+        <div class="relative mt-3 mb-6 h-52 sm:h-56 rounded-xl overflow-hidden shadow-md bg-ucsc">
 
-            <div class="flex gap-3">
-                <a href="{{ route('departments.history', $department->id) }}"
-                    class="inline-flex items-center justify-center rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition">
-                    Ir al historial
-                </a>
+            @if ($department->imageUrl())
+                <img src="{{ $department->imageUrl() }}" alt="{{ $department->name }}"
+                    class="absolute inset-0 h-full w-full object-cover">
+            @endif
 
-                <x-button type="button" variant="danger" onclick="openCreate()">
-                    + Añadir dispositivo
-                </x-button>
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/10"></div>
+
+            <div class="relative h-full flex flex-col sm:flex-row sm:items-end justify-end sm:justify-between gap-4 p-6">
+
+                <div>
+                    <p class="text-xs font-semibold text-red-200 uppercase tracking-widest">
+                        Departamento
+                    </p>
+
+                    <h1 class="text-3xl sm:text-4xl font-bold text-white drop-shadow">
+                        {{ $department->displayName() }}
+                    </h1>
+
+                    <span
+                        class="mt-2 inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white">
+                        {{ $devices->count() }} {{ $devices->count() === 1 ? 'dispositivo' : 'dispositivos' }}
+                    </span>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <x-button :href="route('departments.history', $department->id)" variant="secondary">
+                        <x-icon name="clock" class="w-4 h-4" />
+                        Ver historial
+                    </x-button>
+
+                    <x-button type="button" onclick="openCreate()">
+                        <x-icon name="plus" class="w-4 h-4" />
+                        Añadir dispositivo
+                    </x-button>
+                </div>
+
             </div>
 
         </div>
 
         <!-- TABLA -->
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table
-                class="w-full min-w-[700px] text-left text-sm text-slate-600 bg-white rounded shadow-sm border border-slate-200">
+            <table class="w-full min-w-[700px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
 
@@ -61,9 +83,9 @@
                 <tbody class="divide-y divide-slate-100">
 
                     @forelse ($devices as $device)
-                        <tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 font-mono text-xs text-slate-500">
                                 {{ $device->id }}
                             </td>
 
@@ -136,8 +158,9 @@
 
                                     <!-- ELIMINAR -->
 
-                                    <x-button variant="danger" size="sm" type="button"
-                                        onclick="openDelete({{ $device->id }})" title="Eliminar dispositivo">
+                                    <button type="button" onclick="openDelete({{ $device->id }})"
+                                        class="p-1.5 bg-ucsc text-white hover:bg-ucsc-dark rounded transition-colors"
+                                        title="Eliminar dispositivo">
 
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -146,7 +169,7 @@
 
                                         </svg>
 
-                                    </x-button>
+                                    </button>
 
                                 </div>
 
@@ -155,14 +178,8 @@
                         </tr>
 
                     @empty
-
-                        <tr>
-
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                No hay dispositivos registrados.
-                            </td>
-
-                        </tr>
+                        <x-empty-row colspan="6" message="No hay dispositivos registrados en este departamento."
+                            hint="Usa el botón «Añadir dispositivo» para comenzar." />
                     @endforelse
 
                 </tbody>
@@ -176,18 +193,18 @@
 
     <!-- MODAL AGREGAR -->
 
-    <div id="createModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div id="createModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
 
-            <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
+            <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
 
                 <h2 class="text-lg font-semibold">
                     Añadir dispositivo
                 </h2>
 
-                <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()"
-                    class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                <button type="button" onclick="closeCreate()" title="Cerrar"
+                    class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
 
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -196,11 +213,11 @@
 
                     </svg>
 
-                </x-button>
+                </button>
 
             </div>
 
-            <div class="p-4">
+            <div class="px-6 py-5">
 
                 <form method="POST" action="{{ route('devices.store') }}">
 
@@ -213,7 +230,7 @@
                         </label>
 
                         <input type="text" name="name" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500"
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc"
                             placeholder="Ej: PC-{{ $department->name }}-01">
 
                     </div>
@@ -226,7 +243,7 @@
                         </label>
 
                         <select name="brand_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             <option value="">
                                 Seleccione una marca
@@ -248,7 +265,7 @@
                         </label>
 
                         <select name="device_type_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             <option value="">Seleccione un tipo de dispositivo</option>
 
@@ -267,7 +284,7 @@
                         </label>
 
                         <select name="processor_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             <option value="">Seleccione un tipo de procesador</option>
 
@@ -286,7 +303,7 @@
                         </label>
 
                         <select name="storage_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             <option value="">
                                 Seleccione almacenamiento
@@ -311,7 +328,7 @@
                         </label>
 
                         <select name="ram_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             <option value="">
                                 Seleccione RAM
@@ -358,18 +375,18 @@
 
     <!-- MODAL VER -->
 
-    <div id="showModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div id="showModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
 
-            <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
+            <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
 
                 <h2 class="text-lg font-semibold">
                     Detalles del dispositivo
                 </h2>
 
-                <x-button variant="secondary" size="sm" type="button" onclick="closeShow()"
-                    class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                <button type="button" onclick="closeShow()" title="Cerrar"
+                    class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
 
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -378,11 +395,11 @@
 
                     </svg>
 
-                </x-button>
+                </button>
 
             </div>
 
-            <div class="p-4">
+            <div class="px-6 py-5">
 
                 <p>
                     <strong>ID:</strong>
@@ -436,7 +453,7 @@
 
 
                 <a id="createTicketButton" href="#"
-                    class="mt-4 inline-block w-full text-center bg-red-700 text-white py-2 px-4 rounded hover:bg-red-800 transition-colors">
+                    class="mt-4 inline-block w-full text-center bg-ucsc text-white font-medium py-2.5 px-4 rounded-md hover:bg-ucsc-dark transition-colors">
                     Crear ticket para este dispositivo
                 </a>
 
@@ -451,18 +468,18 @@
 
     <!-- MODAL EDITAR -->
 
-    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div id="editModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
 
-            <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
+            <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
 
                 <h2 class="text-lg font-semibold">
                     Editar dispositivo
                 </h2>
 
-                <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()"
-                    class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                <button type="button" onclick="closeEdit()" title="Cerrar"
+                    class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
 
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -471,11 +488,11 @@
 
                     </svg>
 
-                </x-button>
+                </button>
 
             </div>
 
-            <div class="p-4">
+            <div class="px-6 py-5">
 
                 <form id="editForm" method="POST">
 
@@ -490,7 +507,7 @@
                         </label>
 
                         <input type="text" id="editName" name="name" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                     </div>
 
@@ -502,7 +519,7 @@
                         </label>
 
                         <select id="editBrand" name="brand_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             @foreach ($brands as $brand)
                                 <option value="{{ $brand->id }}">
@@ -520,7 +537,7 @@
                         </label>
 
                         <select id="editDeviceType" name="device_type_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
                             @foreach ($deviceTypes as $deviceType)
                                 <option value="{{ $deviceType->id }}">
                                     {{ $deviceType->name }}
@@ -535,7 +552,7 @@
                         </label>
 
                         <select id="editProcessor" name="processor_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
                             @foreach ($processors as $processor)
                                 <option value="{{ $processor->id }}">
                                     {{ $processor->brand }} - {{ $processor->model }}
@@ -553,7 +570,7 @@
                         </label>
 
                         <select id="editStorage" name="storage_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             @foreach ($storages as $storage)
                                 <option value="{{ $storage->id }}">
@@ -573,7 +590,7 @@
                         </label>
 
                         <select id="editRam" name="ram_id" required
-                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500">
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             @foreach ($rams as $ram)
                                 <option value="{{ $ram->id }}">
@@ -737,17 +754,6 @@
             });
         }
 
-        @if (session('success'))
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Listo!',
-                    text: '{{ session('success') }}',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            });
-        @endif
     </script>
 
 </x-app-layout>

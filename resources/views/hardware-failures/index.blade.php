@@ -1,42 +1,23 @@
-<x-app-layout>
+<x-app-layout title="Reportes de hardware">
 
     <x-navbar />
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
-            Volver al dashboard
-        </a>
-
-        <!-- encabezado -->
-
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mt-3 mb-6">
-
-            <div>
-
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Reportes de hardware
-                </h1>
-
-                <p class="text-gray-500 mt-1">
-                    Administración de los tipos de fallas de hardware que se pueden reportar.
-                </p>
-
-            </div>
-
+        <x-page-header title="Reportes de hardware" subtitle="Administración de los tipos de fallas de hardware que se pueden reportar." :count="$hardwareFailures->count()" unit="registro"
+            :breadcrumbs="['Inicio' => route('dashboard'), 'Reportes de hardware' => null]">
             <x-button onclick="openCreate()">
-                + Nuevo reporte
+                <x-icon name="plus" class="w-4 h-4" />
+                Nuevo reporte
             </x-button>
-
-        </div>
+        </x-page-header>
 
 
         <!-- tabla -->
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table
-                class="w-full min-w-[600px] text-left text-sm text-slate-600 bg-white rounded shadow-sm border border-slate-200">
+            <table class="w-full min-w-[600px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
 
@@ -64,7 +45,7 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @foreach ($hardwareFailures as $hardwareFailure)
+                    @forelse ($hardwareFailures as $hardwareFailure)
 
                         <tr class="hover:bg-slate-50 transition-colors">
 
@@ -129,8 +110,9 @@
 
                                     <!-- Eliminar -->
 
-                                    <x-button variant="danger" size="sm" type="button"
-                                        onclick="openDelete({{ $hardwareFailure->id }})" title="Eliminar reporte">
+                                    <button type="button" onclick="openDelete({{ $hardwareFailure->id }})"
+                                        class="p-1.5 bg-ucsc text-white hover:bg-ucsc-dark rounded transition-colors"
+                                        title="Eliminar reporte">
 
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -139,7 +121,7 @@
 
                                         </svg>
 
-                                    </x-button>
+                                    </button>
 
                                 </div>
 
@@ -147,7 +129,10 @@
 
                         </tr>
 
-                    @endforeach
+                    @empty
+                        <x-empty-row colspan="4" message="Aún no hay fallas de hardware registradas."
+                            hint="Usa el botón «Nuevo reporte» para comenzar." />
+                    @endforelse
 
                 </tbody>
 
@@ -163,7 +148,7 @@
 
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
 
-                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
+                <div class="bg-ucsc px-6 py-5 flex items-start justify-between">
 
                     <div>
 
@@ -171,14 +156,14 @@
                             Nuevo reporte de hardware
                         </h2>
 
-                        <p class="text-blue-100 text-sm mt-1">
+                        <p class="text-red-100 text-sm mt-1">
                             Registra un nuevo tipo de falla de hardware.
                         </p>
 
                     </div>
 
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeCreate()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
 
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -187,7 +172,7 @@
 
                         </svg>
 
-                    </x-button>
+                    </button>
 
                 </div>
 
@@ -204,7 +189,7 @@
                             </label>
 
                             <input type="text" name="name" placeholder="Ej: Falla de memoria RAM" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc transition">
 
                         </div>
 
@@ -215,7 +200,7 @@
                             </label>
 
                             <textarea name="description" rows="3" placeholder="Ej: El equipo se reinicia o muestra pantallazo azul." required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition"></textarea>
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc transition"></textarea>
 
                         </div>
 
@@ -243,18 +228,18 @@
         <!-- Modal ver -->
 
         <div id="showModal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
 
-                <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
+                <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
 
                     <h2 class="text-lg font-semibold">
                         Detalles del reporte de hardware
                     </h2>
 
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeShow()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeShow()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
 
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -263,11 +248,11 @@
 
                         </svg>
 
-                    </x-button>
+                    </button>
 
                 </div>
 
-                <div class="p-4">
+                <div class="px-6 py-5 space-y-2 text-sm text-slate-700">
 
                     <p>
                         <strong>ID:</strong>
@@ -298,7 +283,7 @@
 
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
 
-                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
+                <div class="bg-ucsc px-6 py-5 flex items-start justify-between">
 
                     <div>
 
@@ -306,14 +291,14 @@
                             Editar reporte de hardware
                         </h2>
 
-                        <p class="text-blue-100 text-sm mt-1">
+                        <p class="text-red-100 text-sm mt-1">
                             Actualizar un tipo de falla de hardware.
                         </p>
 
                     </div>
 
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeEdit()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
 
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -322,7 +307,7 @@
 
                         </svg>
 
-                    </x-button>
+                    </button>
 
                 </div>
 
@@ -340,7 +325,7 @@
                             </label>
 
                             <input type="text" name="name" id="editName" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc transition">
 
                         </div>
 
@@ -351,7 +336,7 @@
                             </label>
 
                             <textarea name="description" id="editDescription" rows="3" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition"></textarea>
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc transition"></textarea>
 
                         </div>
 
@@ -472,17 +457,6 @@
             }
 
 
-            @if (session('success'))
-                document.addEventListener('DOMContentLoaded', function () {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Listo!',
-                        text: '{{ session('success') }}',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                });
-            @endif
 
         </script>
 

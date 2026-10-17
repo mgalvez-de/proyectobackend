@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout title="Usuarios">
 
     <x-navbar />
 
@@ -12,30 +12,19 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
-            Volver al dashboard
-        </a>
-
-        <!-- encabezado -->
-
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mt-3 mb-6">
-
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Usuarios</h1>
-                <p class="text-gray-500 mt-1">Administración de las cuentas de usuario del sistema.</p>
-            </div>
-
+        <x-page-header title="Usuarios" subtitle="Administración de las cuentas de usuario del sistema." :count="$users->count()" unit="usuario"
+            :breadcrumbs="['Inicio' => route('dashboard'), 'Usuarios' => null]">
             <x-button onclick="openCreate()">
-                + Nuevo usuario
+                <x-icon name="plus" class="w-4 h-4" />
+                Nuevo usuario
             </x-button>
-
-        </div>
+        </x-page-header>
 
         <!-- tabla -->
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table class="w-full min-w-[900px] text-left text-sm text-slate-600 bg-white rounded shadow-sm border border-slate-200">
+            <table class="w-full min-w-[900px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
@@ -51,7 +40,7 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @foreach ($users as $user)
+                    @forelse ($users as $user)
 
                         <tr class="hover:bg-slate-50 transition-colors">
 
@@ -64,9 +53,9 @@
                             <td class="px-6 py-4">{{ $user->email }}</td>
 
                             <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                                <x-badge :color="['admin' => 'ucsc', 'supervisor' => 'blue'][$user->rol] ?? 'gray'">
                                     {{ $roleNames[$user->rol] ?? $user->rol }}
-                                </span>
+                                </x-badge>
                             </td>
 
                             <td class="px-6 py-4">{{ $user->department?->name ?? '—' }}</td>
@@ -112,12 +101,13 @@
 
                                     <!-- Eliminar -->
 
-                                    <x-button variant="danger" size="sm" type="button" onclick="openDelete({{ $user->id }})"
+                                    <button type="button" onclick="openDelete({{ $user->id }})"
+                                        class="p-1.5 bg-ucsc text-white hover:bg-ucsc-dark rounded transition-colors"
                                         title="Eliminar usuario">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v3m1-10V4a1 1 0 00-1-1h-4a1 1 0 01-1 1v3M4 7h16" />
                                         </svg>
-                                    </x-button>
+                                    </button>
 
                                 </div>
 
@@ -125,7 +115,10 @@
 
                         </tr>
 
-                    @endforeach
+                    @empty
+                        <x-empty-row colspan="7" message="Aún no hay usuarios registrados."
+                            hint="Usa el botón «Nuevo usuario» para comenzar." />
+                    @endforelse
 
                 </tbody>
 
@@ -141,17 +134,17 @@
 
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
 
-                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
+                <div class="bg-ucsc px-6 py-5 flex items-start justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-white">Nuevo usuario</h2>
                         <p class="text-red-100 text-sm mt-1">Crea una cuenta y asígnale un rol.</p>
                     </div>
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeCreate()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </x-button>
+                    </button>
                 </div>
 
                 <form action="{{ route('users.store') }}" method="POST">
@@ -163,26 +156,26 @@
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Nombre</label>
                             <input type="text" name="name" placeholder="Ej: Juan Pérez" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">RUT (sin puntos ni guion)</label>
                             <input type="text" name="rut" placeholder="Ej: 222208481" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Correo</label>
                             <input type="email" name="email" placeholder="Ej: jperez@ucsc.cl" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Rol</label>
                             <select name="rol" id="createRol" required
                                 onchange="toggleDepartment('createRol', 'createDepartmentWrapper', 'createDepartment')"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                                 <option value="estudiante">Estudiante</option>
                                 <option value="supervisor">Supervisor</option>
                                 <option value="admin">Administrador</option>
@@ -192,7 +185,7 @@
                         <div id="createDepartmentWrapper" class="hidden">
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Departamento</label>
                             <select name="department_id" id="createDepartment"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                                 <option value="">Seleccione un departamento</option>
                                 @foreach ($departments as $department)
                                     <option value="{{ $department->id }}">{{ $department->name }}</option>
@@ -203,13 +196,13 @@
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Contraseña</label>
                             <input type="password" name="password" placeholder="Mínimo 8 caracteres" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Repetir contraseña</label>
                             <input type="password" name="password_confirmation" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                     </div>
@@ -233,18 +226,18 @@
         <!-- Modal ver -->
 
         <div id="showModal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
 
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
 
-                <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
+                <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
                     <h2 class="text-lg font-semibold">Detalles del usuario</h2>
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeShow()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeShow()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </x-button>
+                    </button>
                 </div>
 
                 <div class="p-4 space-y-1">
@@ -268,17 +261,17 @@
 
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
 
-                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
+                <div class="bg-ucsc px-6 py-5 flex items-start justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-white">Editar usuario</h2>
                         <p class="text-red-100 text-sm mt-1">Actualiza los datos, el rol o la contraseña.</p>
                     </div>
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeEdit()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </x-button>
+                    </button>
                 </div>
 
                 <form id="editForm" method="POST">
@@ -291,26 +284,26 @@
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Nombre</label>
                             <input type="text" name="name" id="editName" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">RUT (sin puntos ni guion)</label>
                             <input type="text" name="rut" id="editRut" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Correo</label>
                             <input type="email" name="email" id="editEmail" required
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Rol</label>
                             <select name="rol" id="editRol" required
                                 onchange="toggleDepartment('editRol', 'editDepartmentWrapper', 'editDepartment')"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                                 <option value="estudiante">Estudiante</option>
                                 <option value="supervisor">Supervisor</option>
                                 <option value="admin">Administrador</option>
@@ -320,7 +313,7 @@
                         <div id="editDepartmentWrapper" class="hidden">
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Departamento</label>
                             <select name="department_id" id="editDepartment"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                                 <option value="">Seleccione un departamento</option>
                                 @foreach ($departments as $department)
                                     <option value="{{ $department->id }}">{{ $department->name }}</option>
@@ -331,13 +324,13 @@
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Nueva contraseña</label>
                             <input type="password" name="password" id="editPassword" placeholder="Déjala vacía para no cambiarla"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Repetir nueva contraseña</label>
                             <input type="password" name="password_confirmation" id="editPasswordConfirmation"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition">
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                         </div>
 
                     </div>
@@ -439,17 +432,6 @@
                 });
             }
 
-            @if (session('success'))
-                document.addEventListener('DOMContentLoaded', function () {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Listo!',
-                        text: @json(session('success')),
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                });
-            @endif
 
             @if (session('error'))
                 document.addEventListener('DOMContentLoaded', function () {

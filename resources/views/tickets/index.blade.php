@@ -1,21 +1,92 @@
-
-<x-app-layout>
+<x-app-layout title="Nuevo ticket">
 
     <x-navbar />
 
+    @php
+        $breadcrumbs = auth()->user()->rol === 'admin' ? ['Inicio' => route('dashboard')] : [];
+
+        if ($device?->department) {
+            $breadcrumbs[$device->department->displayName()] = route('departments.show', $device->department);
+        }
+
+        $breadcrumbs['Nuevo ticket'] = null;
+    @endphp
+
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        @if (auth()->user()->rol === 'admin')
-            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700"></a>
+        @if (count($breadcrumbs) > 1)
+            <x-breadcrumbs :items="$breadcrumbs" />
+        @endif
+
+        <!-- ficha del dispositivo -->
+        @if ($device)
+            <div
+                class="mt-4 bg-white border border-slate-200 rounded-xl shadow-sm p-5 flex flex-col md:flex-row md:items-center gap-5">
+
+                <div class="flex items-center gap-4 md:flex-1">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-ucsc/10 text-ucsc">
+                        <x-icon name="computer" class="w-8 h-8" />
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            Dispositivo seleccionado
+                        </p>
+                        <h2 class="text-xl font-bold text-slate-800">
+                            {{ $device->name }}
+                        </h2>
+                        <p class="text-sm text-slate-500">
+                            {{ $device->deviceType?->name ?? 'Sin tipo' }}
+                            @if ($device->department)
+                                · {{ $device->department->displayName() }}
+                            @endif
+                        </p>
+                    </div>
+                </div>
+
+                <dl class="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm md:border-l md:border-slate-200 md:pl-6">
+                    <div>
+                        <dt class="text-xs text-slate-400">Marca</dt>
+                        <dd class="font-medium text-slate-700">{{ $device->brand?->name ?? '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-slate-400">Procesador</dt>
+                        <dd class="font-medium text-slate-700">
+                            {{ $device->processor ? $device->processor->brand . ' ' . $device->processor->model : '—' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-slate-400">RAM</dt>
+                        <dd class="font-medium text-slate-700">
+                            {{ $device->ram ? $device->ram->type . ' · ' . $device->ram->capacity : '—' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-slate-400">Almacenamiento</dt>
+                        <dd class="font-medium text-slate-700">
+                            {{ $device->storage ? $device->storage->type . ' · ' . $device->storage->capacity : '—' }}
+                        </dd>
+                    </div>
+                </dl>
+
+            </div>
+        @else
+            <div class="mt-4 flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
+                <x-icon name="exclamation" class="w-5 h-5 shrink-0 mt-0.5" />
+                <p class="text-sm">
+                    No se seleccionó ningún dispositivo. Abre el detalle de un dispositivo y usa
+                    <strong>«Crear ticket para este dispositivo»</strong>.
+                </p>
+            </div>
         @endif
 
         <div class="mt-6 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
-            <div class="bg-[#D12421] text-white px-6 py-4">
+            <div class="bg-ucsc text-white px-6 py-4">
                 <h1 class="text-xl font-semibold">
                     ¿Qué sucedió?
                 </h1>
-                <p class="text-sm text-gray-200 mt-1">
+                <p class="text-sm text-red-100 mt-1">
                     Describe el problema del dispositivo para generar un ticket.
                 </p>
             </div>
@@ -29,13 +100,16 @@
 
                 <!-- errores generales -->
                 @if ($errors->any())
-                    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-                        <p class="font-semibold">No se pudo crear el ticket.</p>
-                        <ul class="mt-2 list-disc pl-5 text-sm">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                    <div class="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+                        <x-icon name="exclamation" class="w-5 h-5 shrink-0 mt-0.5" />
+                        <div>
+                            <p class="font-semibold">No se pudo crear el ticket.</p>
+                            <ul class="mt-2 list-disc pl-5 text-sm">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 @endif
 
@@ -78,7 +152,7 @@
                             <!-- fallas de software -->
                             <select
                                 id="softwareSelect"
-                                class="hidden w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                                class="hidden w-full rounded-lg border-gray-300 shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                                 <option value="">Selecciona una falla de software</option>
 
@@ -94,7 +168,7 @@
                             <!-- fallas de hardware -->
                             <select
                                 id="hardwareSelect"
-                                class="hidden w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                                class="hidden w-full rounded-lg border-gray-300 shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                                 <option value="">Selecciona una falla de hardware</option>
 
@@ -118,7 +192,7 @@
                                 id="severity"
                                 name="severity"
                                 required
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                                 <option value="">Selecciona la gravedad</option>
                                 <option value="low" @selected(old('severity') === 'low')>Baja</option>
@@ -141,7 +215,7 @@
                             name="comments"
                             rows="8"
                             placeholder="Describe con más detalle qué ocurrió..."
-                            class="w-full min-h-48 rounded-lg border-gray-300 shadow-sm resize-y focus:border-red-500 focus:ring-red-500">{{ old('comments') }}</textarea>
+                            class="w-full min-h-48 rounded-lg border-gray-300 shadow-sm resize-y focus:border-ucsc focus:ring-ucsc">{{ old('comments') }}</textarea>
                     </div>
 
                 </div>
@@ -149,17 +223,14 @@
                 <!-- botones -->
                 <div class="mt-8 flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-200 pt-6">
 
-                    <a
-                        href="{{ url()->previous() }}"
-                        class="inline-flex justify-center items-center rounded-lg bg-gray-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-gray-700 transition">
+                    <x-button :href="url()->previous()" variant="secondary" size="lg">
                         Cancelar
-                    </a>
+                    </x-button>
 
-                    <button
-                        type="submit"
-                        class="inline-flex justify-center items-center rounded-lg bg-[#D12421] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition">
+                    <x-button type="submit" size="lg">
+                        <x-icon name="ticket" class="w-5 h-5" />
                         Generar ticket
-                    </button>
+                    </x-button>
 
                 </div>
 
@@ -171,6 +242,9 @@
         const softwareSelect = document.getElementById('softwareSelect');
         const hardwareSelect = document.getElementById('hardwareSelect');
         const problemType = document.getElementById('problem_type');
+
+        const selectedClass = 'rounded-lg border-2 border-ucsc bg-ucsc/5 px-5 py-2 font-medium text-ucsc';
+        const unselectedClass = 'rounded-lg border-2 border-gray-300 px-5 py-2 font-medium text-gray-700 hover:border-gray-400';
 
         function mostrarSoftware() {
             softwareSelect.classList.remove('hidden');
@@ -184,11 +258,8 @@
 
             problemType.value = 'software';
 
-            document.getElementById('btnSoftware').className =
-                'rounded-lg border-2 border-red-600 bg-red-50 px-5 py-2 font-medium text-red-700';
-
-            document.getElementById('btnHardware').className =
-                'rounded-lg border-2 border-gray-300 px-5 py-2 font-medium text-gray-700';
+            document.getElementById('btnSoftware').className = selectedClass;
+            document.getElementById('btnHardware').className = unselectedClass;
         }
 
         function mostrarHardware() {
@@ -203,14 +274,11 @@
 
             problemType.value = 'hardware';
 
-            document.getElementById('btnHardware').className =
-                'rounded-lg border-2 border-red-600 bg-red-50 px-5 py-2 font-medium text-red-700';
-
-            document.getElementById('btnSoftware').className =
-                'rounded-lg border-2 border-gray-300 px-5 py-2 font-medium text-gray-700';
+            document.getElementById('btnHardware').className = selectedClass;
+            document.getElementById('btnSoftware').className = unselectedClass;
         }
 
-        <!-- mantener la selección anterior si laravel devuelve errores -->
+        // mantener la selección anterior si laravel devuelve errores
         if (problemType.value === 'hardware') {
             mostrarHardware();
         } else {

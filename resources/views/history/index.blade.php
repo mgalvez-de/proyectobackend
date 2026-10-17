@@ -1,37 +1,42 @@
-<x-app-layout>
+<x-app-layout :title="'Historial · ' . $department->displayName()">
 
     <x-navbar />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    @php
+        $severities = [
+            'low' => ['label' => 'Baja', 'color' => 'green'],
+            'medium' => ['label' => 'Media', 'color' => 'yellow'],
+            'high' => ['label' => 'Alta', 'color' => 'orange'],
+            'critical' => ['label' => 'Crítica', 'color' => 'red'],
+        ];
 
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        $statuses = [
+            'pending' => ['label' => 'Pendiente', 'color' => 'yellow'],
+            'in_progress' => ['label' => 'En proceso', 'color' => 'blue'],
+            'closed' => ['label' => 'Cerrado', 'color' => 'green'],
+        ];
 
-        @if (auth()->user()->rol === 'admin')
-            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">
-                Volver al dashboard
-            </a>
-        @endif
+        $breadcrumbs = auth()->user()->rol === 'admin'
+            ? ['Inicio' => route('dashboard')]
+            : [];
+        $breadcrumbs[$department->displayName()] = route('departments.show', $department);
+        $breadcrumbs['Historial'] = null;
+    @endphp
 
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mt-3 mb-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-            <h1 class="text-3xl font-bold text-gray-800">
-                Historial del departamento: {{ $department->name }}
-            </h1>
+        <x-page-header title="Historial de {{ $department->displayName() }}"
+            subtitle="Tickets reportados para los dispositivos de este departamento." :count="$tickets->count()"
+            unit="ticket" :breadcrumbs="$breadcrumbs">
+            <x-button :href="route('departments.show', $department)" variant="secondary">
+                Volver al departamento
+            </x-button>
+        </x-page-header>
 
-        </div>
+        <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
+            <table class="w-full min-w-[800px] text-left text-sm text-slate-600">
 
-
-        @if (session('success'))
-            <div class="mb-4 rounded-lg bg-green-50 p-4 text-green-700">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <div class="overflow-x-auto">
-            <table
-                class="w-full min-w-[800px] text-left text-sm text-gray-600 bg-white rounded-lg shadow-sm border border-gray-200">
-
-                <thead class="bg-gray-50 border-b text-xs uppercase text-gray-500">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
                         <th class="px-5 py-4">ID</th>
                         <th class="px-5 py-4">Dispositivo</th>
@@ -43,10 +48,15 @@
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-100">
                     @forelse ($tickets as $ticket)
-                        <tr>
-                            <td class="px-5 py-4">
+                        @php
+                            $severity = $severities[$ticket->severity] ?? ['label' => 'Sin definir', 'color' => 'gray'];
+                            $status = $statuses[$ticket->status] ?? ['label' => $ticket->status, 'color' => 'gray'];
+                        @endphp
+
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-5 py-4 font-mono text-xs text-slate-500">
                                 #{{ $ticket->id }}
                             </td>
 
@@ -55,7 +65,11 @@
                             </td>
 
                             <td class="px-5 py-4">
-                                {{ ucfirst($ticket->problem_type) }}
+                                <span class="inline-flex items-center gap-1.5 text-slate-700">
+                                    <x-icon :name="$ticket->problem_type === 'hardware' ? 'wrench' : 'code'"
+                                        class="w-4 h-4 text-slate-400" />
+                                    {{ ucfirst($ticket->problem_type) }}
+                                </span>
                             </td>
 
                             <td class="px-5 py-4">
@@ -63,32 +77,20 @@
                             </td>
 
                             <td class="px-5 py-4">
-                                {{ [
-                                    'low' => 'Baja',
-                                    'medium' => 'Media',
-                                    'high' => 'Alta',
-                                    'critical' => 'Crítica',
-                                ][$ticket->severity] ?? 'Sin definir' }}
+                                <x-badge :color="$severity['color']">{{ $severity['label'] }}</x-badge>
                             </td>
 
                             <td class="px-5 py-4">
-                                {{ [
-                                    'pending' => 'Pendiente',
-                                    'in_progress' => 'En proceso',
-                                    'closed' => 'Cerrado',
-                                ][$ticket->status] ?? $ticket->status }}
+                                <x-badge :color="$status['color']" dot>{{ $status['label'] }}</x-badge>
                             </td>
 
-                            <td class="px-5 py-4">
+                            <td class="px-5 py-4 whitespace-nowrap">
                                 {{ $ticket->created_at->format('d/m/Y H:i') }}
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="px-5 py-10 text-center text-gray-500">
-                                Este departamento todavía no tiene tickets registrados.
-                            </td>
-                        </tr>
+                        <x-empty-row colspan="7" message="Este departamento todavía no tiene tickets registrados."
+                            hint="Los tickets se crean desde el detalle de cada dispositivo." />
                     @endforelse
                 </tbody>
 

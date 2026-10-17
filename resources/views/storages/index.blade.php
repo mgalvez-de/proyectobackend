@@ -1,33 +1,20 @@
-<x-app-layout>
-    @include('components.navbar')
-    <div class="max-w-5xl mx-auto">
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
-
-
-            <!--encabezado-->
-
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800 mt-6">
-                    Almacenamiento
-                </h1>
-
-                <p class="text-gray-500 mt-1">
-                    Administración de las capacidades de almacenamiento de dispositivos del sistema.
-                </p>
-            </div>
-
+<x-app-layout title="Almacenamiento">
+    <x-navbar />
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <x-page-header title="Almacenamiento" subtitle="Administración de las capacidades de almacenamiento de dispositivos del sistema." :count="$storages->count()" unit="registro"
+            :breadcrumbs="['Inicio' => route('dashboard'), 'Almacenamiento' => null]">
             <x-button onclick="openCreate()">
-                + Nuevo almacenamiento
+                <x-icon name="plus" class="w-4 h-4" />
+                Nuevo almacenamiento
             </x-button>
-
-        </div>
+        </x-page-header>
 
 
         <!-- tabla -->
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table class="w-full bg-white min-w-[600px] text-left text-sm text-slate-600">
+            <table class="w-full min-w-[600px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
@@ -53,7 +40,7 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @foreach ($storages as $storage)
+                    @forelse ($storages as $storage)
                         <tr class="hover:bg-slate-50 transition-colors">
 
                             <td class="px-6 py-4 font-mono text-xs text-slate-500">
@@ -105,21 +92,25 @@
 
                                     <!-- boton eliminar -->
 
-                                    <x-button variant="danger" size="sm" type="button"
-                                        onclick="openDelete({{ $storage->id }})" title="Eliminar almacenamiento">
+                                    <button type="button" onclick="openDelete({{ $storage->id }})"
+                                        class="p-1.5 bg-ucsc text-white hover:bg-ucsc-dark rounded transition-colors"
+                                        title="Eliminar almacenamiento">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v3m1-10V4a1 1 0 00-1-1h-4a1 1 0 01-1 1v3M4 7h16">
                                             </path>
                                         </svg>
-                                    </x-button>
+                                    </button>
 
                                 </div>
 
                             </td>
 
                         </tr>
-                    @endforeach
+                    @empty
+                        <x-empty-row colspan="4" message="Aún no hay almacenamientos registrados."
+                            hint="Usa el botón «Nuevo almacenamiento» para comenzar." />
+                    @endforelse
 
                 </tbody>
 
@@ -137,7 +128,7 @@
 
                 <!-- Encabezado -->
 
-                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
+                <div class="bg-ucsc px-6 py-5 flex items-start justify-between">
 
                     <div>
 
@@ -145,19 +136,19 @@
                             Nuevo almacenamiento
                         </h2>
 
-                        <p class="text-blue-100 text-sm mt-1">
+                        <p class="text-red-100 text-sm mt-1">
                             Registra una nueva capacidad de almacenamiento.
                         </p>
 
                     </div>
 
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeCreate()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeCreate()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </x-button>
+                    </button>
 
                 </div>
 
@@ -177,8 +168,8 @@
 
                             <input type="text" name="type" id="type" placeholder="Ej: SSD M.2"
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-blue-100
-                    focus:border-blue-500 transition">
+                    focus:outline-none focus:ring-2 focus:ring-ucsc/20
+                    focus:border-ucsc transition">
                         </div>
 
                         <div>
@@ -188,8 +179,8 @@
 
                             <input type="text" name="capacity" id="capacity" placeholder="Ej: 500 GB"
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-blue-100
-                    focus:border-blue-500 transition">
+                    focus:outline-none focus:ring-2 focus:ring-ucsc/20
+                    focus:border-ucsc transition">
                         </div>
 
                     </div>
@@ -217,21 +208,21 @@
 
         <!-- Modal para ver un almacenamiento -->
         <div id="showModal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-                <div class="flex justify-between items-center bg-red-700 text-white px-4 py-2 rounded-t-lg">
+            class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+                <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
                     <h2 class="text-lg font-semibold">Detalles del almacenamiento</h2>
 
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeShow()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeShow()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </x-button>
+                    </button>
 
                 </div>
-                <div class="p-4">
+                <div class="px-6 py-5 space-y-2 text-sm text-slate-700">
                     <p><strong>ID:</strong> <span id="showId"></span></p>
                     <p><strong>Tipo:</strong> <span id="showType"></span></p>
                     <p><strong>Capacidad:</strong> <span id="showCapacity"></span></p>
@@ -247,7 +238,7 @@
 
                 <!-- Encabezado -->
 
-                <div class="bg-red-700 px-6 py-5 flex items-start justify-between">
+                <div class="bg-ucsc px-6 py-5 flex items-start justify-between">
 
                     <div>
 
@@ -255,19 +246,19 @@
                             Editar almacenamiento
                         </h2>
 
-                        <p class="text-blue-100 text-sm mt-1">
+                        <p class="text-red-100 text-sm mt-1">
                             Actualizar una capacidad de almacenamiento
                         </p>
 
                     </div>
 
-                    <x-button variant="secondary" size="sm" type="button" onclick="closeEdit()"
-                        class="bg-transparent hover:bg-transparent text-gray-500 hover:text-gray-700">
+                    <button type="button" onclick="closeEdit()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </x-button>
+                    </button>
 
                 </div>
 
@@ -287,8 +278,8 @@
 
                             <input type="text" name="type" id="editType" placeholder="Ej: SSD M.2"
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-blue-100
-                    focus:border-blue-500 transition">
+                    focus:outline-none focus:ring-2 focus:ring-ucsc/20
+                    focus:border-ucsc transition">
                         </div>
 
                         <div>
@@ -298,8 +289,8 @@
 
                             <input type="text" name="capacity" id="editCapacity" placeholder="Ej: 500 GB"
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-blue-100
-                    focus:border-blue-500 transition">
+                    focus:outline-none focus:ring-2 focus:ring-ucsc/20
+                    focus:border-ucsc transition">
                         </div>
 
                     </div>
@@ -392,17 +383,6 @@
                 });
             }
 
-            @if (session('success'))
-                document.addEventListener('DOMContentLoaded', function () {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Listo!',
-                        text: '{{ session('success') }}',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                });
-            @endif
         </script>
     </div>
 </x-app-layout>

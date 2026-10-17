@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Animación al abrir cualquier modal (createModal, editModal, showModal) */
+[id$="Modal"]:not(.hidden) {
+    animation: modal-fade 0.15s ease-out;
+}
+
+[id$="Modal"]:not(.hidden) > div {
+    animation: modal-pop 0.2s ease-out;
+}
+
+/* Toast de éxito debajo del navbar */
+.swal-below-navbar {
+    padding-top: 4.5rem !important;
+}
+
+@keyframes modal-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}

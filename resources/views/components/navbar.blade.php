@@ -1,97 +1,111 @@
-<nav class="bg-[#D12421] text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
+@php
+    $user = auth()->user();
 
+    $roleNames = [
+        'admin' => 'Administrador',
+        'supervisor' => 'Supervisor',
+        'estudiante' => 'Estudiante',
+    ];
+
+    // Secciones del menú "Agregar opciones" (solo admin)
+    $menu = [
+        'Hardware y Especificaciones' => [
+            ['route' => 'brands', 'label' => 'Marcas', 'icon' => 'tag'],
+            ['route' => 'device-types', 'label' => 'Tipos de Dispositivo', 'icon' => 'computer'],
+            ['route' => 'rams', 'label' => 'Capacidad de RAM', 'icon' => 'server'],
+            ['route' => 'storages', 'label' => 'Almacenamiento', 'icon' => 'database'],
+            ['route' => 'processors', 'label' => 'Procesadores', 'icon' => 'chip'],
+        ],
+        'Disponibilidad' => [
+            ['route' => 'device-statuses', 'label' => 'Estados de Equipo', 'icon' => 'check-badge'],
+        ],
+        'Soporte y Tickets' => [
+            ['route' => 'hardware-failures', 'label' => 'Reportes de hardware', 'icon' => 'wrench'],
+            ['route' => 'software-failures', 'label' => 'Reportes de software', 'icon' => 'code'],
+        ],
+    ];
+
+    $linkBase = 'rounded-md px-3 py-2 font-medium transition-colors';
+@endphp
+
+<nav class="bg-ucsc text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between min-h-[4rem] py-2 gap-x-4 gap-y-2 flex-wrap">
+
+            <!-- Logo -->
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                 <img src="{{ asset('images/logo-ucsc.png') }}" alt="UCSC" class="h-8 w-8">
                 <span class="text-lg font-semibold">UCSC</span>
             </a>
 
-            <div class="flex items-center gap-4 flex-wrap justify-end text-sm">
+            <div class="flex items-center gap-1 flex-wrap justify-end text-sm">
 
-                @if (auth()->user()?->rol !== 'supervisor')
-                    <a href="{{ route('dashboard') }}" class="hover:text-red-100">Inicio</a>
-                @endif
+                @if ($user?->rol === 'admin')
+                    <!-- Menú de mantenedores -->
+                    <div x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false"
+                        class="relative">
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="hover:text-red-100">Cerrar sesión</button>
-                </form>
-
-                @if (auth()->user()?->rol === 'admin')
-                    <details id="opciones" class="relative">
-
-                        <summary
-                            class="cursor-pointer list-none bg-white text-red-700 rounded-lg px-4 py-2 hover:bg-gray-100">
+                        <button type="button" @click="open = ! open"
+                            class="inline-flex items-center gap-1 rounded-md bg-white px-3 py-2 font-medium text-ucsc hover:bg-gray-100 transition-colors">
                             Agregar opciones
-                        </summary>
+                            <x-icon name="chevron-down" class="w-4 h-4 transition-transform"
+                                x-bind:class="open && 'rotate-180'" />
+                        </button>
 
-                        <div
-                            class="absolute right-0 mt-2 w-64 bg-white text-gray-800 rounded shadow-lg border border-gray-200 z-10 p-3 space-y-3">
+                        <div x-show="open" x-cloak
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute right-0 mt-2 w-64 bg-white text-gray-800 rounded-lg shadow-lg ring-1 ring-black/5 z-50 p-2">
 
-                            <div>
-                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Hardware y
-                                    Especificaciones</p>
-                                <a href="{{ route('brands.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">Marcas</a>
-                                <a href="{{ route('device-types.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">Tipos de Dispositivo</a>
-                                <a href="{{ route('rams.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">Capacidad de RAM</a>
-                                <a href="{{ route('storages.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">Almacenamiento</a>
-                                <a href="{{ route('processors.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">Procesadores</a>
-                            </div>
+                            @foreach ($menu as $section => $items)
+                                <div class="{{ $loop->first ? '' : 'mt-2 pt-2 border-t border-gray-100' }}">
+                                    <p class="px-2 pb-1 text-xs font-semibold text-gray-400 uppercase">
+                                        {{ $section }}
+                                    </p>
 
-                            <div>
-                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">
-                                    Disponibilidad
-                                </p>
+                                    @foreach ($items as $item)
+                                        @php $active = request()->routeIs($item['route'] . '.*'); @endphp
+                                        <a href="{{ route($item['route'] . '.index') }}"
+                                            class="flex items-center gap-2.5 px-2 py-1.5 rounded-md transition-colors {{ $active ? 'bg-ucsc/10 text-ucsc font-medium' : 'hover:bg-gray-100' }}">
+                                            <x-icon :name="$item['icon']"
+                                                class="w-4 h-4 {{ $active ? 'text-ucsc' : 'text-gray-400' }}" />
+                                            {{ $item['label'] }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endforeach
 
-                                <a href="{{ route('device-statuses.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Estados de Equipo
-                                </a>
-                            </div>
-
-                            <div>
-                                <p class="text-xs font-semibold text-gray-400 uppercase mb-1">
-                                    Soporte y Tickets
-                                </p>
-
-                                <a href="{{ route('hardware-failures.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Reportes de hardware
-                                </a>
-
-                                <a href="{{ route('software-failures.index') }}"
-                                    class="block px-2 py-1 rounded hover:bg-gray-100">
-                                    Reportes de software
-                                </a>
-                            </div>
-
-                            <div class="border-t border-gray-200 pt-2">
-                                <a href="{{ route('users.index') }}" class="block px-2 py-1 rounded hover:bg-gray-100">
+                            <div class="mt-2 pt-2 border-t border-gray-100">
+                                @php $active = request()->routeIs('users.*'); @endphp
+                                <a href="{{ route('users.index') }}"
+                                    class="flex items-center gap-2.5 px-2 py-1.5 rounded-md transition-colors {{ $active ? 'bg-ucsc/10 text-ucsc font-medium' : 'hover:bg-gray-100' }}">
+                                    <x-icon name="user-plus" class="w-4 h-4 {{ $active ? 'text-ucsc' : 'text-gray-400' }}" />
                                     Registrar usuario
                                 </a>
                             </div>
 
                         </div>
-                    </details>
-
-                    <script>
-                        document.addEventListener('click', function(event) {
-                            const opciones = document.getElementById('opciones');
-
-                            if (!opciones.contains(event.target)) {
-                                opciones.removeAttribute('open');
-                            }
-                        });
-                    </script>
+                    </div>
                 @endif
 
+                <!-- Usuario conectado -->
+                @if ($user)
+                    <span class="hidden md:block px-3 text-right leading-tight">
+                        <span class="block font-medium">{{ $user->name }}</span>
+                        <span class="block text-xs text-red-100">{{ $roleNames[$user->rol] ?? $user->rol }}</span>
+                    </span>
+                @endif
 
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="{{ $linkBase }} hover:bg-white/10">
+                        Cerrar sesión
+                    </button>
+                </form>
 
             </div>
 

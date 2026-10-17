@@ -18,11 +18,17 @@ class TicketController extends Controller
         $problemType = request('problem_type');
         $deviceId = request('device_id');
 
+        // ficha del dispositivo que se muestra arriba del formulario
+        $device = $deviceId
+            ? Device::with(['brand', 'deviceType', 'processor', 'storage', 'ram', 'department'])->find($deviceId)
+            : null;
+
         return view('tickets.index', compact(
             'softwareFailures',
             'hardwareFailures',
             'problemType',
-            'deviceId'
+            'deviceId',
+            'device'
         ));
     }
 
