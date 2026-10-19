@@ -14,7 +14,7 @@
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table class="w-full min-w-[600px] text-left text-sm text-slate-600">
+            <table id="storages-table" class="w-full min-w-[600px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
@@ -31,7 +31,7 @@
                             Capacidad
                         </th>
 
-                        <th class="px-6 py-4 text-center">
+                        <th class="px-6 py-4 text-center dt-no-sort">
                             Acciones
                         </th>
 
@@ -40,7 +40,7 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse ($storages as $storage)
+                    @foreach ($storages as $storage)
                         <tr class="hover:bg-slate-50 transition-colors">
 
                             <td class="px-6 py-4 font-mono text-xs text-slate-500">
@@ -107,14 +107,13 @@
                             </td>
 
                         </tr>
-                    @empty
-                        <x-empty-row colspan="4" message="Aún no hay almacenamientos registrados."
-                            hint="Usa el botón «Nuevo almacenamiento» para comenzar." />
-                    @endforelse
+                    @endforeach
 
                 </tbody>
 
             </table>
+
+            <x-datatable id="storages-table" empty="Aún no hay almacenamientos registrados." />
 
         </div>
 

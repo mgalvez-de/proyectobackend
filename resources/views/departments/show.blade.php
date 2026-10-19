@@ -58,7 +58,7 @@
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table class="w-full min-w-[700px] text-left text-sm text-slate-600">
+            <table id="devices-table" class="w-full min-w-[700px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
 
@@ -74,7 +74,7 @@
 
                         <th class="px-6 py-4">RAM</th>
 
-                        <th class="px-6 py-4 text-center">Acciones</th>
+                        <th class="px-6 py-4 text-center dt-no-sort">Acciones</th>
 
                     </tr>
 
@@ -82,7 +82,7 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse ($devices as $device)
+                    @foreach ($devices as $device)
                         <tr class="hover:bg-slate-50 transition-colors">
 
                             <td class="px-6 py-4 font-mono text-xs text-slate-500">
@@ -177,14 +177,13 @@
 
                         </tr>
 
-                    @empty
-                        <x-empty-row colspan="6" message="No hay dispositivos registrados en este departamento."
-                            hint="Usa el botón «Añadir dispositivo» para comenzar." />
-                    @endforelse
+                    @endforeach
 
                 </tbody>
 
             </table>
+
+            <x-datatable id="devices-table" empty="No hay dispositivos registrados en este departamento." />
 
         </div>
 

@@ -34,7 +34,7 @@
         </x-page-header>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
-            <table class="w-full min-w-[800px] text-left text-sm text-slate-600">
+            <table id="history-table" class="w-full min-w-[800px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
@@ -49,14 +49,14 @@
                 </thead>
 
                 <tbody class="divide-y divide-slate-100">
-                    @forelse ($tickets as $ticket)
+                    @foreach ($tickets as $ticket)
                         @php
                             $severity = $severities[$ticket->severity] ?? ['label' => 'Sin definir', 'color' => 'gray'];
                             $status = $statuses[$ticket->status] ?? ['label' => $ticket->status, 'color' => 'gray'];
                         @endphp
 
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-5 py-4 font-mono text-xs text-slate-500">
+                            <td class="px-5 py-4 font-mono text-xs text-slate-500" data-order="{{ $ticket->id }}">
                                 #{{ $ticket->id }}
                             </td>
 
@@ -84,17 +84,16 @@
                                 <x-badge :color="$status['color']" dot>{{ $status['label'] }}</x-badge>
                             </td>
 
-                            <td class="px-5 py-4 whitespace-nowrap">
+                            <td class="px-5 py-4 whitespace-nowrap" data-order="{{ $ticket->created_at->timestamp }}">
                                 {{ $ticket->created_at->format('d/m/Y H:i') }}
                             </td>
                         </tr>
-                    @empty
-                        <x-empty-row colspan="7" message="Este departamento todavía no tiene tickets registrados."
-                            hint="Los tickets se crean desde el detalle de cada dispositivo." />
-                    @endforelse
+                    @endforeach
                 </tbody>
 
             </table>
+
+            <x-datatable id="history-table" empty="Este departamento todavía no tiene tickets registrados." order="desc" />
         </div>
 
     </div>

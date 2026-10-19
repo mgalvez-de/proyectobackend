@@ -24,7 +24,7 @@
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table class="w-full min-w-[900px] text-left text-sm text-slate-600">
+            <table id="users-table" class="w-full min-w-[900px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
@@ -34,13 +34,13 @@
                         <th class="px-6 py-4">Correo</th>
                         <th class="px-6 py-4">Rol</th>
                         <th class="px-6 py-4">Departamento</th>
-                        <th class="px-6 py-4 text-center">Acciones</th>
+                        <th class="px-6 py-4 text-center dt-no-sort">Acciones</th>
                     </tr>
                 </thead>
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse ($users as $user)
+                    @foreach ($users as $user)
 
                         <tr class="hover:bg-slate-50 transition-colors">
 
@@ -115,14 +115,13 @@
 
                         </tr>
 
-                    @empty
-                        <x-empty-row colspan="7" message="Aún no hay usuarios registrados."
-                            hint="Usa el botón «Nuevo usuario» para comenzar." />
-                    @endforelse
+                    @endforeach
 
                 </tbody>
 
             </table>
+
+            <x-datatable id="users-table" empty="Aún no hay usuarios registrados." />
 
         </div>
 

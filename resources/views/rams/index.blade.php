@@ -17,7 +17,7 @@
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table class="w-full min-w-[600px] text-left text-sm text-slate-600">
+            <table id="rams-table" class="w-full min-w-[600px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
 
@@ -35,7 +35,7 @@
                             Capacidad
                         </th>
 
-                        <th class="px-6 py-4 text-center">
+                        <th class="px-6 py-4 text-center dt-no-sort">
                             Acciones
                         </th>
 
@@ -45,7 +45,7 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    @forelse ($rams as $ram)
+                    @foreach ($rams as $ram)
 
                         <tr class="hover:bg-slate-50 transition-colors">
 
@@ -129,14 +129,13 @@
 
                         </tr>
 
-                    @empty
-                        <x-empty-row colspan="4" message="Aún no hay memorias RAM registradas."
-                            hint="Usa el botón «Nueva RAM» para comenzar." />
-                    @endforelse
+                    @endforeach
 
                 </tbody>
 
             </table>
+
+            <x-datatable id="rams-table" empty="Aún no hay memorias RAM registradas." />
 
         </div>
 
