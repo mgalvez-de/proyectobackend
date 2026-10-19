@@ -684,7 +684,7 @@
 
 
             // reemplaza esta ip por la dirección ipv4 de tu pc
-            const baseUrl = 'http://192.168.1.22:8000';
+            const baseUrl = 'http://172.30.67.160:8000';
             const ticketUrl = baseUrl + '/tickets/create?device_id=' + id;
 
             qrContainer.innerHTML = '';
