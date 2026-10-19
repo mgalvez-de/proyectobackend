@@ -25,9 +25,9 @@ x-app-layout>
                 </div>
             @endif
 
-            <div class="bg-white shadow-sm rounded-lg p-6">
+            <div class="bg-white shadow-sm rounded-lg p-6 overflow-x-auto">
 
-                <table class="min-w-full border border-gray-200">
+                <table id="tipos-dispositivos-table" class="min-w-full border border-gray-200">
 
                     <thead class="bg-gray-100">
 
@@ -49,7 +49,7 @@ x-app-layout>
 
                     <tbody>
 
-                        @forelse($tipos as $tipo)
+                        @foreach($tipos as $tipo)
 
                             <tr class="border-t">
 
@@ -87,16 +87,7 @@ x-app-layout>
 
                             </tr>
 
-                        @empty
-
-                            <tr>
-                                <td colspan="3"
-                                    class="px-4 py-6 text-center text-gray-500">
-                                    No hay tipos registrados.
-                                </td>
-                            </tr>
-
-                        @endforelse
+                        @endforeach
 
                     </tbody>
 
@@ -107,5 +98,53 @@ x-app-layout>
         </div>
 
     </div>
+
+@push('styles')
+    <link href="https://cdn.datatables.net/v/dt/dt-3.0.4/datatables.min.css" rel="stylesheet">
+    <style>
+        #tipos-dispositivos-table_wrapper .dt-length select {
+            min-width: 60px;
+        }
+
+        #tipos-dispositivos-table_wrapper .dt-search input,
+        #tipos-dispositivos-table_wrapper .dt-length select {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.5rem;
+        }
+
+        #tipos-dispositivos-table_wrapper .dt-paging button {
+            border-radius: 0.375rem;
+        }
+    </style>
+@endpush
+
+@push('scripts')
+    <script src="https://cdn.datatables.net/v/dt/dt-3.0.4/datatables.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabla = document.getElementById('tipos-dispositivos-table');
+
+            if (tabla) {
+                new DataTable(tabla, {
+                    language: {
+                        url: 'https://cdn.datatables.net/plug-ins/3.0.4/i18n/es-ES.js',
+                        emptyTable: 'No hay tipos registrados.'
+                    },
+                    pageLength: 10,
+                    lengthMenu: [5, 10, 25, 50],
+                    order: [[0, 'asc']],
+                    columnDefs: [
+                        {
+                            targets: -1,
+                            orderable: false,
+                            searchable: false
+                        }
+                    ]
+                });
+            }
+        });
+    </script>
+@endpush
 
 </x-app-layout>
