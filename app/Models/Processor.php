@@ -10,4 +10,9 @@ class Processor extends Model
         'brand',
         'model'
     ];
+
+    public function devices()
+    {
+        return $this->hasMany(Device::class);
+    }
 }
