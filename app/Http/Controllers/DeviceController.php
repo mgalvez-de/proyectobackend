@@ -9,6 +9,7 @@ use App\Models\Brand;
 use App\Models\Storage;
 use App\Models\Ram;
 use App\Models\Department;
+use App\Models\MaintenanceType;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
@@ -33,6 +34,7 @@ class DeviceController extends Controller
         $rams = Ram::all();
         $processors = Processor::all();
         $deviceTypes = DeviceType::all();
+        $maintenanceTypes = MaintenanceType::all();
 
         return view('departments.show', compact(
             'devices',
@@ -41,6 +43,7 @@ class DeviceController extends Controller
             'rams',
             'processors',
             'deviceTypes',
+            'maintenanceTypes',
             'department'
         ));
     }

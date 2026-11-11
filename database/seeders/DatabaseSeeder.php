@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             DeviceStatusSeeder::class,
             HardwareFailureSeeder::class,
             SoftwareFailureSeeder::class,
+            MaintenanceTypeSeeder::class,
 
             // 3 dispositivos por departamento (usa los mantenedores de arriba)
             DeviceSeeder::class,

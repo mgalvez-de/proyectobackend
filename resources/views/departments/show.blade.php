@@ -458,6 +458,13 @@
                     Crear ticket para este dispositivo
                 </a>
 
+                @if (in_array(auth()->user()->rol, ['admin', 'supervisor']))
+                    <button type="button" onclick="openPreventiveFromShow()"
+                        class="mt-3 inline-block w-full text-center bg-green-600 text-white font-medium py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors">
+                        Programar mantención preventiva
+                    </button>
+                @endif
+
 
 
             </div>
@@ -633,6 +640,155 @@
     </div>
 
 
+    @if (in_array(auth()->user()->rol, ['admin', 'supervisor']))
+        <div id="preventiveModal"
+            class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
+
+                <div class="flex justify-between items-center bg-ucsc text-white px-6 py-4">
+
+                    <h2 class="text-lg font-semibold">
+                        Programar mantención preventiva
+                    </h2>
+
+                    <button type="button" onclick="closePreventive()" title="Cerrar"
+                        class="rounded-md p-1 text-white/80 hover:text-white hover:bg-white/10 transition">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+
+                        </svg>
+
+                    </button>
+
+                </div>
+
+                <div class="px-6 py-5">
+
+                    <form method="POST" action="{{ route('preventive-maintenances.store') }}">
+
+                        @csrf
+
+                        <div class="mb-4">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Dispositivo
+                            </label>
+
+                            <select id="preventiveDevice" name="device_id" required
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
+
+                                <option value="">
+                                    Seleccione un dispositivo
+                                </option>
+
+                                @foreach ($devices as $device)
+                                    <option value="{{ $device->id }}" @selected(old('device_id') == $device->id)>
+                                        {{ $device->name }}
+                                    </option>
+                                @endforeach
+
+                            </select>
+
+                            <x-input-error :messages="$errors->get('device_id')" class="mt-2" />
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Fecha programada
+                            </label>
+
+                            <input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" required
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
+
+                            <x-input-error :messages="$errors->get('scheduled_at')" class="mt-2" />
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Tipo de mantención
+                            </label>
+
+                            <select name="maintenance_type_id" required
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
+
+                                <option value="">
+                                    Seleccione un tipo de mantención
+                                </option>
+
+                                @foreach ($maintenanceTypes as $maintenanceType)
+                                    <option value="{{ $maintenanceType->id }}" @selected(old('maintenance_type_id') == $maintenanceType->id)>
+                                        {{ $maintenanceType->name }}
+                                    </option>
+                                @endforeach
+
+                            </select>
+
+                            <x-input-error :messages="$errors->get('maintenance_type_id')" class="mt-2" />
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Descripción del trabajo
+                            </label>
+
+                            <textarea name="error_description" rows="3" required
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc"
+                                placeholder="Detalle del trabajo que se realizará">{{ old('error_description') }}</textarea>
+
+                            <x-input-error :messages="$errors->get('error_description')" class="mt-2" />
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Observaciones
+                            </label>
+
+                            <textarea name="comments" rows="2"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc"
+                                placeholder="Opcional">{{ old('comments') }}</textarea>
+
+                            <x-input-error :messages="$errors->get('comments')" class="mt-2" />
+
+                        </div>
+
+                        <div class="flex justify-end gap-2 mt-6">
+
+                            <x-button type="button" variant="secondary" size="sm" onclick="closePreventive()">
+
+                                Cancelar
+
+                            </x-button>
+
+                            <x-button type="submit" variant="success" size="sm">
+
+                                Programar
+
+                            </x-button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    @endif
+
+
     <!-- FORMULARIO ELIMINAR -->
 
     <form id="deleteForm" method="POST" class="hidden">
@@ -646,6 +802,8 @@
     <!-- JAVASCRIPT -->
 
     <script>
+        let dispositivoSeleccionado = null;
+
         function openCreate() {
 
             document
@@ -667,6 +825,8 @@
 
         function openShow(id, name, brand, deviceType, storage, processor, ram) {
             document.getElementById('showModal').classList.remove('hidden');
+
+            dispositivoSeleccionado = id;
 
             document.getElementById('createTicketButton').href =
                 '/tickets?device_id=' + id;
@@ -741,6 +901,45 @@
                 .add('hidden');
 
         }
+
+
+        @if (in_array(auth()->user()->rol, ['admin', 'supervisor']))
+            function openPreventive(deviceId = null) {
+
+                document
+                    .getElementById('preventiveModal')
+                    .classList
+                    .remove('hidden');
+
+                if (deviceId) {
+                    document.getElementById('preventiveDevice').value = deviceId;
+                }
+
+            }
+
+
+            function openPreventiveFromShow() {
+
+                closeShow();
+
+                openPreventive(dispositivoSeleccionado);
+
+            }
+
+
+            function closePreventive() {
+
+                document
+                    .getElementById('preventiveModal')
+                    .classList
+                    .add('hidden');
+
+            }
+
+            @if ($errors->hasAny(['device_id', 'scheduled_at', 'maintenance_type_id', 'error_description']))
+                document.addEventListener('DOMContentLoaded', () => openPreventive());
+            @endif
+        @endif
 
 
         function openDelete(id) {

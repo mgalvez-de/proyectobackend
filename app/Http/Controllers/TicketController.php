@@ -95,13 +95,13 @@ class TicketController extends Controller
 
         if ($rol === 'estudiante') {
             return redirect()
-                ->route('dashboard')
+                ->route('departments.history', $device->department_id)
                 ->with('success', $mensaje);
         }
 
         if ($rol === 'supervisor') {
             return redirect()
-                ->route('departments.history.supervisor', $device->department_id)
+                ->route('departments.history', $device->department_id)
                 ->with('success', $mensaje);
         }
 
@@ -109,5 +109,24 @@ class TicketController extends Controller
         return redirect()
             ->route('departments.history', $device->department_id)
             ->with('success', $mensaje);
+    }
+
+    public function close(Ticket $ticket)
+    {
+        abort_unless($ticket->type === 'reactive', 404);
+
+        abort_unless(
+            auth()->user()->canAccessDepartment($ticket->device->department),
+            403,
+            'No tienes acceso a este departamento.'
+        );
+
+        $ticket->update([
+            'status' => 'closed',
+            'closed_at' => now(),
+            'closed_by' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Ticket cerrado correctamente.');
     }
 }
