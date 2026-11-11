@@ -17,15 +17,43 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col bg-gray-100">
+    <body class="font-sans antialiased bg-gray-100">
+        <script>
+            // estado de la sidebar: abierta en el celular / contraída en el escritorio (se recuerda)
+            function layoutState() {
+                return {
+                    sidebarOpen: false,
+                    collapsed: false,
+                    init() {
+                        try { this.collapsed = localStorage.getItem('sidebar-collapsed') === '1'; } catch (e) {}
+                        this.$watch('collapsed', value => {
+                            try { localStorage.setItem('sidebar-collapsed', value ? '1' : '0'); } catch (e) {}
+                        });
+                    },
+                };
+            }
+        </script>
 
-            <!-- Page Content -->
-            <main class="flex-1">
-                {{ $slot }}
-            </main>
+        <div x-data="layoutState()" @keydown.escape.window="sidebarOpen = false" class="min-h-screen flex flex-col">
 
-            <x-footer />
+            <x-navbar />
+
+            <div class="flex flex-1">
+
+                @auth
+                    <x-sidebar />
+                @endauth
+
+                <div class="flex min-w-0 flex-1 flex-col">
+                    <!-- Page Content -->
+                    <main class="flex-1">
+                        {{ $slot }}
+                    </main>
+
+                    <x-footer />
+                </div>
+
+            </div>
         </div>
 
         @if (session('success'))

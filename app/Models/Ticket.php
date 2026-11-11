@@ -16,7 +16,19 @@ class Ticket extends Model
         'status',
         'comments',
         'scheduled_at',
+        'technician_id',
+        'solution',
+        'solved_at',
     ];
+
+    protected $casts = [
+        'solved_at' => 'datetime',
+    ];
+
+    public function technician()
+    {
+        return $this->belongsTo(Technician::class);
+    }
 
     public function device()
     {

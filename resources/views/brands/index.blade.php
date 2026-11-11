@@ -1,5 +1,4 @@
 <x-app-layout title="Marcas">
-    <x-navbar />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <x-page-header title="Marcas" subtitle="Administración de las marcas de dispositivos del sistema." :count="$brands->count()" unit="registro"
             :breadcrumbs="['Inicio' => route('dashboard'), 'Marcas' => null]">

@@ -1,6 +1,5 @@
 <x-app-layout title="Nuevo ticket">
 
-    <x-navbar />
 
     @php
         $breadcrumbs = auth()->user()->rol === 'admin' ? ['Inicio' => route('dashboard')] : [];

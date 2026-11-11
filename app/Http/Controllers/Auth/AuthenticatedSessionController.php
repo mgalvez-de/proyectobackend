@@ -28,6 +28,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // el técnico siempre entra a sus tickets (no a la página que quedó guardada de otra sesión)
+        if ($request->user()->rol === 'tecnico') {
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('my-tickets.index');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

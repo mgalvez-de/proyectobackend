@@ -6,6 +6,12 @@
     display: none !important;
 }
 
+/* Edge agrega su propio botón "ver contraseña"; usamos solo el del login */
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
 /* Animación al abrir cualquier modal (createModal, editModal, showModal) */
 [id$="Modal"]:not(.hidden) {
     animation: modal-fade 0.15s ease-out;

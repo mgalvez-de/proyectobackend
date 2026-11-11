@@ -14,6 +14,11 @@ class DashboardController extends Controller
             return redirect()->route('departments.show', $user->department_id);
         }
 
+        // el técnico entra directo a los tickets que tiene asignados
+        if ($user->rol === 'tecnico') {
+            return redirect()->route('my-tickets.index');
+        }
+
         $departments = Department::withCount('devices')
             ->get()
             ->filter(fn ($department) => $user->canAccessDepartment($department));

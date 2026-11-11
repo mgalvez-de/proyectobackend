@@ -15,6 +15,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\TechnicianController;
+use App\Http\Controllers\MyTicketController;
+use App\Http\Controllers\TicketAssignmentController;
+use App\Http\Controllers\ApiDocsController;
+use App\Http\Controllers\HardwareComponentController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -70,6 +75,33 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)
             ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('technicians', TechnicianController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('hardware-components', HardwareComponentController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        // documentación de la API
+        Route::get('/documentacion-api', [ApiDocsController::class, 'index'])
+            ->name('api-docs.index');
+
+        Route::get('/documentacion-api/postman', [ApiDocsController::class, 'postman'])
+            ->name('api-docs.postman');
+    });
+
+    // asignar técnico a un ticket
+    Route::patch('/tickets/{ticket}/encargado', [TicketAssignmentController::class, 'update'])
+        ->middleware('role:admin,supervisor')
+        ->name('tickets.assign');
+
+    // tickets asignados al técnico que inició sesión
+    Route::middleware('role:tecnico')->group(function () {
+        Route::get('/mis-tickets', [MyTicketController::class, 'index'])
+            ->name('my-tickets.index');
+
+        Route::put('/mis-tickets/{ticket}', [MyTicketController::class, 'update'])
+            ->name('my-tickets.update');
     });
 });
 

@@ -1,5 +1,4 @@
 <x-app-layout title="Almacenamiento">
-    <x-navbar />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <x-page-header title="Almacenamiento" subtitle="Administración de las capacidades de almacenamiento de dispositivos del sistema." :count="$storages->count()" unit="registro"
             :breadcrumbs="['Inicio' => route('dashboard'), 'Almacenamiento' => null]">

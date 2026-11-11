@@ -54,4 +54,10 @@ class Device extends Model
         return $this->belongsTo(DeviceType::class);
     }
 
+    // piezas del dispositivo (placa madre, pantalla, gabinete, fuente de poder)
+    public function components()
+    {
+        return $this->hasMany(HardwareComponent::class);
+    }
+
 }

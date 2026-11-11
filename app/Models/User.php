@@ -55,6 +55,12 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
+    // ficha de técnico asociada a esta cuenta (solo rol "tecnico")
+    public function technician()
+    {
+        return $this->hasOne(Technician::class);
+    }
+
     public function canAccessDepartment(Department $department): bool
     {
         if ($this->rol === 'admin') {

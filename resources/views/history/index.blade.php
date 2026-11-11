@@ -1,6 +1,5 @@
 <x-app-layout :title="'Historial · ' . $department->displayName()">
 
-    <x-navbar />
 
     @php
         $severities = [
@@ -23,7 +22,7 @@
         $breadcrumbs['Historial'] = null;
     @endphp
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <x-page-header title="Historial de {{ $department->displayName() }}"
             subtitle="Tickets reportados para los dispositivos de este departamento." :count="$tickets->count()"
@@ -34,7 +33,7 @@
         </x-page-header>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
-            <table id="history-table" class="w-full min-w-[800px] text-left text-sm text-slate-600">
+            <table id="history-table" class="w-full min-w-[960px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
@@ -44,6 +43,7 @@
                         <th class="px-5 py-4">Falla</th>
                         <th class="px-5 py-4">Gravedad</th>
                         <th class="px-5 py-4">Estado</th>
+                        <th class="px-5 py-4 dt-no-sort">Encargado</th>
                         <th class="px-5 py-4">Fecha</th>
                     </tr>
                 </thead>
@@ -82,6 +82,32 @@
 
                             <td class="px-5 py-4">
                                 <x-badge :color="$status['color']" dot>{{ $status['label'] }}</x-badge>
+                                @if ($ticket->solution)
+                                    <span class="mt-1 block max-w-[10rem] truncate text-xs text-slate-400" title="{{ $ticket->solution }}">
+                                        {{ $ticket->solution }}
+                                    </span>
+                                @endif
+                            </td>
+
+                            <!-- técnico encargado: el admin o el supervisor lo elige de la lista -->
+                            <td class="px-5 py-4">
+                                @if (in_array(auth()->user()->rol, ['admin', 'supervisor']))
+                                    <form method="POST" action="{{ route('tickets.assign', $ticket) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="technician_id" onchange="this.form.submit()" title="Asignar técnico"
+                                            class="w-36 rounded-md border-slate-300 py-1.5 text-xs focus:border-ucsc focus:ring-ucsc">
+                                            <option value="">Sin asignar</option>
+                                            @foreach ($technicians as $technician)
+                                                <option value="{{ $technician->id }}" @selected((int) $ticket->technician_id === (int) $technician->id)>
+                                                    {{ $technician->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </form>
+                                @else
+                                    {{ $ticket->technician?->name ?? 'Sin asignar' }}
+                                @endif
                             </td>
 
                             <td class="px-5 py-4 whitespace-nowrap" data-order="{{ $ticket->created_at->timestamp }}">

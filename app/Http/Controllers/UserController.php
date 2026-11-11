@@ -77,7 +77,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'rut' => ['required', 'regex:/^[0-9]{7,8}[0-9kK]$/', Rule::unique('users', 'rut')->ignore($user?->id)],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
-            'rol' => ['required', Rule::in(['admin', 'supervisor', 'estudiante'])],
+            'rol' => ['required', Rule::in(['admin', 'supervisor', 'estudiante', 'tecnico'])],
             'department_id' => ['nullable', 'required_if:rol,supervisor', 'exists:departments,id'],
             'password' => [$user ? 'nullable' : 'required', 'confirmed', Password::min(8)],
         ];
