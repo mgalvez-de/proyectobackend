@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,13 +19,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // la API siempre responde en JSON, también cuando hay errores
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson()
+        );
 
-        // Si falta el token en la API privada -> 401 en JSON (no redirige al login).
-        $exceptions->render(function (AuthenticationException $e, Request $request) {
+        // /api/rams/999 (ID que no existe) -> mensaje en español
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'No autenticado. Debes enviar un token válido en el header Authorization: Bearer {token}.',
-                ], 401);
+                return response()->json(['message' => 'No se encontró el recurso solicitado.'], 404);
             }
         });
     })->create();

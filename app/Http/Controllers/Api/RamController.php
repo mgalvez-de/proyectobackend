@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 class RamController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * GET /api/rams
+     * Lista las RAM, de 15 en 15.
      */
     public function index()
     {
@@ -17,51 +18,84 @@ class RamController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * POST /api/rams
+     * Crea una RAM.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'type' => 'required',
-            'capacity' => 'required'
-        ]);
+        $data = $request->validate($this->rules(), $this->messages());
 
-        $ram = Ram::create($validated);
+        $ram = Ram::create($data);
 
-        return response()->json($ram, 201);
+        return response()->json([
+            'message' => 'RAM creada correctamente.',
+            'data' => $ram,
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * GET /api/rams/{id}
+     * Muestra una RAM.
      */
     public function show(Ram $ram)
     {
-        return response()->json($ram);
-
+        return response()->json([
+            'data' => $ram,
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * PUT /api/rams/{id}
+     * Edita una RAM.
      */
     public function update(Request $request, Ram $ram)
     {
-        $validated = $request->validate([
-            'type' => 'required',
-            'capacity' => 'required'
+        $data = $request->validate($this->rules(), $this->messages());
+
+        $ram->update($data);
+
+        return response()->json([
+            'message' => 'RAM actualizada correctamente.',
+            'data' => $ram,
         ]);
-
-        $ram->update($validated);
-
-        return response()->json($ram, 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * DELETE /api/rams/{id}
+     * Elimina una RAM (si ningún dispositivo la está usando).
      */
     public function destroy(Ram $ram)
     {
+        $inUse = $ram->devices()->count();
+
+        if ($inUse > 0) {
+            return response()->json([
+                'message' => "No se puede eliminar: {$inUse} dispositivo(s) usan esta RAM.",
+            ], 409);
+        }
+
         $ram->delete();
 
-        return response()->json(null, 204);
+        return response()->json([
+            'message' => 'RAM eliminada correctamente.',
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'type' => ['required', 'string', 'max:50'],
+            'capacity' => ['required', 'string', 'max:50'],
+        ];
+    }
+
+    private function messages(): array
+    {
+        return [
+            'type.required' => 'El tipo de RAM es obligatorio. Ej: DDR4',
+            'type.max' => 'El tipo no puede tener más de 50 caracteres.',
+            'capacity.required' => 'La capacidad es obligatoria. Ej: 16 GB',
+            'capacity.max' => 'La capacidad no puede tener más de 50 caracteres.',
+        ];
     }
 }

@@ -36,6 +36,11 @@ class Department extends Model
         return $this->hasMany(User::class);
     }
 
+    public function technicians()
+    {
+        return $this->hasMany(Technician::class);
+    }
+
     public function displayName(): string
     {
         return self::DISPLAY[$this->name]['label'] ?? $this->name;

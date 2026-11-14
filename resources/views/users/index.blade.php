@@ -1,12 +1,12 @@
 <x-app-layout title="Usuarios">
 
-    <x-navbar />
 
     @php
         $roleNames = [
             'admin' => 'Administrador',
             'supervisor' => 'Supervisor',
             'estudiante' => 'Estudiante',
+            'tecnico' => 'Técnico',
         ];
     @endphp
 
@@ -53,7 +53,7 @@
                             <td class="px-6 py-4">{{ $user->email }}</td>
 
                             <td class="px-6 py-4">
-                                <x-badge :color="['admin' => 'ucsc', 'supervisor' => 'blue'][$user->rol] ?? 'gray'">
+                                <x-badge :color="['admin' => 'ucsc', 'supervisor' => 'blue', 'tecnico' => 'green'][$user->rol] ?? 'gray'">
                                     {{ $roleNames[$user->rol] ?? $user->rol }}
                                 </x-badge>
                             </td>
@@ -176,6 +176,7 @@
                                 onchange="toggleDepartment('createRol', 'createDepartmentWrapper', 'createDepartment')"
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                                 <option value="estudiante">Estudiante</option>
+                                <option value="tecnico">Técnico</option>
                                 <option value="supervisor">Supervisor</option>
                                 <option value="admin">Administrador</option>
                             </select>
@@ -304,6 +305,7 @@
                                 onchange="toggleDepartment('editRol', 'editDepartmentWrapper', 'editDepartment')"
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-ucsc transition">
                                 <option value="estudiante">Estudiante</option>
+                                <option value="tecnico">Técnico</option>
                                 <option value="supervisor">Supervisor</option>
                                 <option value="admin">Administrador</option>
                             </select>
