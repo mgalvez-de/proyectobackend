@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // dirección que va dentro de los códigos QR (ej: http://192.168.1.4:8000 para abrirlos desde el celular).
+    // Si se deja vacía, el QR usa la misma dirección con la que se abrió la página.
+    'qr_url' => env('QR_BASE_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

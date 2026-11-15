@@ -44,6 +44,11 @@ class PreventiveMaintenanceController extends Controller
 
         $this->authorizeDevice($ticket->device);
 
+        // una preventiva ya completada o cancelada queda en el historial tal como está
+        if ($ticket->isFinished()) {
+            return back()->with('error', 'Esta mantención ya fue gestionada.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', 'in:completed,cancelled'],
         ]);

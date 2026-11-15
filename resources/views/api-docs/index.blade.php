@@ -4,14 +4,23 @@
     @php
         $methodColors = ['GET' => 'green', 'POST' => 'blue', 'PUT' => 'yellow', 'DELETE' => 'red'];
         $statusColor = fn ($code) => $code < 300 ? 'green' : ($code === 404 ? 'orange' : ($code === 409 ? 'yellow' : 'red'));
-        $pretty = fn ($data) => json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $pretty = fn ($data) => $data === null ? '(sin contenido)' : json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        // tipo de acceso de cada endpoint: [texto, color]
+        $access = [
+            '' => ['Pública', 'green'],
+            'token' => ['Token', 'blue'],
+            'admin' => ['Token + admin', 'red'],
+        ];
 
         // datos para el probador en vivo
         $testerEndpoints = collect($endpoints)->map(fn ($e) => [
             'key' => $e['key'],
+            'group' => $e['group'],
             'method' => $e['method'],
             'path' => $e['path'],
             'name' => $e['name'],
+            'auth' => $e['auth'],
             'body' => $e['body'] ? $pretty($e['body']) : null,
         ])->values();
     @endphp
@@ -19,7 +28,7 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <x-page-header title="Documentación de la API"
-            subtitle="Cómo conectarse a la API de RAM y qué responde cada endpoint."
+            subtitle="Dos APIs públicas (RAM y procesadores) y dos privadas con token (equipos y estadísticas): cómo conectarse y qué responde cada endpoint."
             :count="count($endpoints)" unit="endpoint"
             :breadcrumbs="['Inicio' => route('dashboard'), 'Documentación API' => null]">
             <x-button :href="route('api-docs.postman')">
@@ -56,6 +65,7 @@
                                 <tbody class="font-mono text-slate-700">
                                     <tr><td class="py-1 pr-4">Accept</td><td class="py-1 pr-4">application/json</td><td class="py-1 font-sans text-slate-500">Siempre</td></tr>
                                     <tr><td class="py-1 pr-4">Content-Type</td><td class="py-1 pr-4">application/json</td><td class="py-1 font-sans text-slate-500">Al enviar datos (POST y PUT)</td></tr>
+                                    <tr><td class="py-1 pr-4">Authorization</td><td class="py-1 pr-4">Bearer {token}</td><td class="py-1 font-sans text-slate-500">Solo en las rutas privadas</td></tr>
                                 </tbody>
                             </table>
                         </dd>
@@ -78,9 +88,17 @@
                     </ol>
                 </div>
 
-                <div class="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
-                    <x-icon name="exclamation" class="w-5 h-5 shrink-0" />
-                    <p>Por ahora la API <strong>no pide autenticación</strong>: cualquiera que llegue a la URL puede crear, editar o borrar RAM. Más adelante se puede proteger con tokens de Sanctum.</p>
+                <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+                    <p class="flex items-center gap-2 font-semibold mb-2">
+                        <x-icon name="lock" class="w-5 h-5 shrink-0" />
+                        Cómo usar la API privada
+                    </p>
+                    <ol class="list-decimal pl-5 space-y-1">
+                        <li>Haz <code class="font-mono text-xs">POST /api/login</code> con tu correo y contraseña.</li>
+                        <li>Copia el <strong>token</strong> que viene en la respuesta.</li>
+                        <li>Agrega el header <code class="font-mono text-xs">Authorization: Bearer {token}</code>.</li>
+                    </ol>
+                    <p class="mt-2 text-blue-800">Los tokens son de Laravel Sanctum. Sin token la API responde 401.</p>
                 </div>
             </div>
 
@@ -96,9 +114,9 @@
             @php
                 $flow = [
                     ['icon' => 'squares-plus', 'title' => 'Postman', 'text' => 'Envía la petición: método + URL (+ body).'],
-                    ['icon' => 'code', 'title' => 'routes/api.php', 'text' => 'apiResource busca qué método del controlador la atiende.'],
-                    ['icon' => 'chip', 'title' => 'Api\\RamController', 'text' => 'Valida los datos y decide qué hacer.'],
-                    ['icon' => 'server', 'title' => 'Modelo Ram', 'text' => 'Lee o guarda en la tabla rams de MySQL.'],
+                    ['icon' => 'code', 'title' => 'routes/api.php', 'text' => 'Busca la ruta y, si es privada, el middleware auth:sanctum revisa el token.'],
+                    ['icon' => 'chip', 'title' => 'Controlador Api\\', 'text' => 'Valida los datos y decide qué hacer.'],
+                    ['icon' => 'server', 'title' => 'Modelo', 'text' => 'Ram, Processor o Device leen o guardan en MySQL.'],
                     ['icon' => 'check-badge', 'title' => 'Respuesta JSON', 'text' => 'Vuelve a Postman con un código de estado.'],
                 ];
             @endphp
@@ -119,15 +137,15 @@
             <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                 <div class="rounded-lg border border-slate-200 p-3">
                     <p class="font-mono text-xs text-slate-500">routes/api.php</p>
-                    <p class="text-slate-700">Rutas de la API, con el prefijo <code class="font-mono">/api</code> y nombres <code class="font-mono">api.rams.*</code>.</p>
+                    <p class="text-slate-700">Rutas con el prefijo <code class="font-mono">/api</code>. Las privadas están dentro de <code class="font-mono">auth:sanctum</code> (y algunas de <code class="font-mono">role:admin</code>).</p>
                 </div>
                 <div class="rounded-lg border border-slate-200 p-3">
-                    <p class="font-mono text-xs text-slate-500">app/Http/Controllers/Api/RamController.php</p>
-                    <p class="text-slate-700">Lógica de la API. Es distinto del controlador web, que devuelve vistas.</p>
+                    <p class="font-mono text-xs text-slate-500">app/Http/Controllers/Api/</p>
+                    <p class="text-slate-700">RamController, ProcessorController, DeviceController y AuthController. Devuelven JSON, no vistas.</p>
                 </div>
                 <div class="rounded-lg border border-slate-200 p-3">
                     <p class="font-mono text-xs text-slate-500">bootstrap/app.php</p>
-                    <p class="text-slate-700">Registra la API y hace que los errores también salgan en JSON.</p>
+                    <p class="text-slate-700">Registra la API y hace que los errores (401, 404, 422) también salgan en JSON.</p>
                 </div>
             </div>
         </section>
@@ -147,19 +165,26 @@
                             <th class="px-6 py-3">Método</th>
                             <th class="px-6 py-3">Ruta</th>
                             <th class="px-6 py-3">Qué hace</th>
+                            <th class="px-6 py-3">Acceso</th>
                             <th class="px-6 py-3">Controlador</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @foreach ($endpoints as $e)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-6 py-3"><x-badge :color="$methodColors[$e['method']]">{{ $e['method'] }}</x-badge></td>
-                                <td class="px-6 py-3 font-mono text-slate-800"><a href="#{{ $e['key'] }}" class="hover:text-ucsc">{{ $e['path'] }}</a></td>
-                                <td class="px-6 py-3 text-slate-600">{{ $e['name'] }}</td>
-                                <td class="px-6 py-3 font-mono text-xs text-slate-500">{{ $e['controller'] }}</td>
+                    @foreach ($groups as $group => $items)
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-slate-50/60">
+                                <td colspan="5" class="px-6 py-2 text-xs font-bold uppercase tracking-wide text-ucsc">{{ $group }}</td>
                             </tr>
-                        @endforeach
-                    </tbody>
+                            @foreach ($items as $e)
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-6 py-3"><x-badge :color="$methodColors[$e['method']]">{{ $e['method'] }}</x-badge></td>
+                                    <td class="px-6 py-3 font-mono text-slate-800"><a href="#{{ $e['key'] }}" class="hover:text-ucsc">{{ $e['path'] }}</a></td>
+                                    <td class="px-6 py-3 text-slate-600">{{ $e['name'] }}</td>
+                                    <td class="px-6 py-3"><x-badge :color="$access[$e['auth'] ?? ''][1]">{{ $access[$e['auth'] ?? ''][0] }}</x-badge></td>
+                                    <td class="px-6 py-3 font-mono text-xs text-slate-500">{{ $e['controller'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    @endforeach
                 </table>
             </div>
         </section>
@@ -175,6 +200,7 @@
                         <x-badge :color="$methodColors[$e['method']]">{{ $e['method'] }}</x-badge>
                         <code class="font-mono text-base font-semibold text-slate-800">{{ $e['path'] }}</code>
                         <span class="text-sm text-slate-500">— {{ $e['name'] }}</span>
+                        <x-badge :color="$access[$e['auth'] ?? ''][1]">{{ $access[$e['auth'] ?? ''][0] }}</x-badge>
                         <button type="button" onclick="copyText(@js($baseUrl . str_replace('/api', '', str_replace('{id}', '1', $e['path']))), this)"
                             class="ml-auto rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">Copiar URL</button>
                     </header>
@@ -186,7 +212,7 @@
 
                             @if (str_contains($e['path'], '{id}'))
                                 <p class="text-slate-600">
-                                    Reemplaza <code class="rounded bg-slate-100 px-1 font-mono">{id}</code> por el ID de la RAM.
+                                    Reemplaza <code class="rounded bg-slate-100 px-1 font-mono">{id}</code> por el ID de {{ $e['resource'] }}.
                                     Ej: <code class="rounded bg-slate-100 px-1 font-mono">{{ str_replace('{id}', '1', $e['path']) }}</code>
                                 </p>
                             @endif
@@ -199,8 +225,14 @@
                                             <tr><th class="px-3 py-2">Campo</th><th class="px-3 py-2">Tipo</th><th class="px-3 py-2">Obligatorio</th><th class="px-3 py-2">Ejemplo</th></tr>
                                         </thead>
                                         <tbody class="divide-y divide-slate-100">
-                                            <tr><td class="px-3 py-2 font-mono">type</td><td class="px-3 py-2">texto (máx. 50)</td><td class="px-3 py-2">Sí</td><td class="px-3 py-2 font-mono">"{{ $e['body']['type'] }}"</td></tr>
-                                            <tr><td class="px-3 py-2 font-mono">capacity</td><td class="px-3 py-2">texto (máx. 50)</td><td class="px-3 py-2">Sí</td><td class="px-3 py-2 font-mono">"{{ $e['body']['capacity'] }}"</td></tr>
+                                            @foreach ($e['fields'] as [$field, $type, $required])
+                                                <tr>
+                                                    <td class="px-3 py-2 font-mono">{{ $field }}</td>
+                                                    <td class="px-3 py-2">{{ $type }}</td>
+                                                    <td class="px-3 py-2">{{ $required }}</td>
+                                                    <td class="px-3 py-2 font-mono">{{ json_encode($e['body'][$field] ?? '', JSON_UNESCAPED_UNICODE) }}</td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                     <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 p-4 font-mono text-xs text-slate-100">{{ $pretty($e['body']) }}</pre>
@@ -212,6 +244,9 @@
                                 <ol class="list-decimal pl-5 space-y-1 text-slate-600">
                                     <li>Método <strong>{{ $e['method'] }}</strong> y la URL de arriba.</li>
                                     <li>Header <code class="font-mono text-xs">Accept: application/json</code>.</li>
+                                    @if ($e['auth'])
+                                        <li>Header <code class="font-mono text-xs">Authorization: Bearer {token}</code> (el token de <code class="font-mono text-xs">POST /api/login</code>{{ $e['auth'] === 'admin' ? ', de un usuario administrador' : '' }}).</li>
+                                    @endif
                                     @if ($e['body'])
                                         <li>Body → <strong>raw</strong> → <strong>JSON</strong>, y pega el ejemplo.</li>
                                     @endif
@@ -253,6 +288,9 @@
                     @foreach ([
                         [200, 'OK', 'Todo salió bien.'],
                         [201, 'Created', 'Se creó el registro (POST).'],
+                        [204, 'No Content', 'Se eliminó el registro y la respuesta viene vacía.'],
+                        [401, 'Unauthorized', 'Ruta privada sin token, o con un token que ya no sirve.'],
+                        [403, 'Forbidden', 'El token es válido, pero el usuario no tiene permiso (no es admin o es otro departamento).'],
                         [404, 'Not Found', 'El ID no existe o la URL está mal escrita.'],
                         [405, 'Method Not Allowed', 'El método no corresponde a esa URL (ej: POST a /api/rams/1).'],
                         [409, 'Conflict', 'No se puede eliminar porque hay dispositivos usando esa RAM.'],
@@ -284,13 +322,21 @@
                         <select x-model="selected" @change="loadBody()"
                             class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc">
                             <template x-for="e in endpoints" :key="e.key">
-                                <option :value="e.key" x-text="e.method + '  ' + e.path + ' — ' + e.name"></option>
+                                <option :value="e.key" x-text="e.method + '  ' + e.path + ' — ' + e.name + (e.auth ? '  🔒' : '')"></option>
                             </template>
                         </select>
                     </div>
 
+                    <div x-show="current().auth">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            Token <span class="font-normal text-slate-400">(se llena solo al usar POST /api/login)</span>
+                        </label>
+                        <input type="text" x-model="token" placeholder="Pega aquí el token"
+                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc">
+                    </div>
+
                     <div x-show="current().path.includes('{id}')">
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">ID de la RAM</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">ID del registro</label>
                         <input type="number" min="1" x-model="id"
                             class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc">
                     </div>
@@ -341,6 +387,7 @@
                 endpoints,
                 selected: endpoints[0].key,
                 id: 1,
+                token: '',
                 body: '',
                 status: null,
                 time: null,
@@ -359,7 +406,7 @@
                 async send() {
                     const endpoint = this.current();
 
-                    if (endpoint.method === 'DELETE' && !confirm('¿Eliminar la RAM con ID ' + this.id + '? Esto borra el dato real.')) {
+                    if (endpoint.method === 'DELETE' && !confirm('¿Eliminar el registro con ID ' + this.id + '? Esto borra el dato real.')) {
                         return;
                     }
 
@@ -367,6 +414,11 @@
                         method: endpoint.method,
                         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
                     };
+
+                    // rutas privadas: mismo header que en Postman
+                    if (endpoint.auth && this.token) {
+                        options.headers['Authorization'] = 'Bearer ' + this.token.trim();
+                    }
 
                     if (endpoint.body !== null) {
                         try {
@@ -389,7 +441,13 @@
                         this.time = Math.round(performance.now() - start);
 
                         try {
-                            this.output = JSON.stringify(JSON.parse(text), null, 2);
+                            const json = JSON.parse(text);
+                            this.output = JSON.stringify(json, null, 2);
+
+                            // al iniciar sesión se guarda el token para las rutas privadas
+                            if (endpoint.key === 'auth-login' && json.token) {
+                                this.token = json.token;
+                            }
                         } catch {
                             this.output = text || '(respuesta vacía)';
                         }

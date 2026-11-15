@@ -1,251 +1,200 @@
 @startuml diagrama-clases
-' =====================================================================
-'  Sistema de Gestión de Dispositivos Tecnológicos UCSC
-'  Diagrama de clases (modelos de Laravel y sus relaciones)
-'  Para verlo en VS Code: abrir este archivo y presionar Alt + D
-' =====================================================================
+' Sistema de Gestión de Dispositivos Tecnológicos UCSC - Diagrama de clases
+' Para verlo en VS Code: abrir este archivo y presionar Alt + D
 
 ' motor de dibujo incluido en PlantUML (no necesita instalar Graphviz)
 !pragma layout smetana
 
-title Sistema de Gestión de Dispositivos Tecnológicos UCSC\nDiagrama de clases
+class Usuario {
+    - id : int
+    - rut : string
+    - nombre : string
+    - email : string
+    - contrasena : string
+    - rol : string
+    - departamento : Departamento
 
-skinparam classAttributeIconSize 0
-skinparam shadowing false
-skinparam nodesep 60
-skinparam ranksep 70
-skinparam defaultFontName Arial
-skinparam titleFontSize 18
-skinparam titleFontColor #D12421
-skinparam class {
-    BackgroundColor #FFFFFF
-    BorderColor #646567
-    ArrowColor #646567
-    HeaderBackgroundColor #F3F4F6
-}
-skinparam package {
-    BorderColor #D12421
-    FontColor #D12421
-}
-skinparam note {
-    BackgroundColor #FEF9C3
-    BorderColor #CA8A04
+    + AgregarUsuario()
+    + ModificarUsuario()
+    + EliminarUsuario()
+    + MostrarUsuarios()
 }
 
-' ---------------------------------------------------------------------
-'  Usuarios y organización
-' ---------------------------------------------------------------------
-package "Usuarios y organización" {
+class Departamento {
+    - id : int
+    - nombre : string
+    - dispositivos : List<Dispositivo>
+    - supervisores : List<Usuario>
 
-    enum Rol {
-        admin
-        supervisor
-        estudiante
-        tecnico
-    }
-
-    class User {
-        + id : int <<PK>>
-        + rut : string <<unique>>
-        + name : string
-        + email : string <<unique>>
-        + password : string <<hash>>
-        + rol : Rol
-        + department_id : int <<FK>> [0..1]
-        --
-        + department() : Department
-        + technician() : Technician
-        + canAccessDepartment(Department) : bool
-    }
-
-    class Department {
-        + id : int <<PK>>
-        + name : string
-        --
-        + devices() : Device[]
-        + users() : User[]
-        + technicians() : Technician[]
-        + displayName() : string
-        + imageUrl() : string
-    }
-
-    class Technician {
-        + id : int <<PK>>
-        + name : string
-        + email : string <<unique>>
-        + phone : string [0..1]
-        + specialty : string
-        + department_id : int <<FK>> [0..1]
-        + user_id : int <<FK>> <<unique>> [0..1]
-        --
-        + department() : Department
-        + user() : User
-        + tickets() : Ticket[]
-        + specialtyName() : string
-    }
+    + MostrarDispositivos()
+    + MostrarHistorial()
 }
 
-' ---------------------------------------------------------------------
-'  Inventario
-' ---------------------------------------------------------------------
-package "Inventario" {
+class Tecnico {
+    - id : int
+    - nombre : string
+    - email : string
+    - telefono : string
+    - especialidad : string
+    - departamento : Departamento
+    - usuario : Usuario
 
-    class Device {
-        + id : int <<PK>>
-        + name : string
-        + department_id : int <<FK>>
-        + brand_id : int <<FK>>
-        + storage_id : int <<FK>>
-        + ram_id : int <<FK>>
-        + processor_id : int <<FK>>
-        + device_type_id : int <<FK>>
-        --
-        + department() : Department
-        + brand() : Brand
-        + storage() : Storage
-        + ram() : Ram
-        + processor() : Processor
-        + deviceType() : DeviceType
-        + components() : HardwareComponent[]
-    }
-
-    class HardwareComponent {
-        + id : int <<PK>>
-        + device_id : int <<FK>>
-        + type : string
-        + brand_id : int <<FK>> [0..1]
-        + model : string [0..1]
-        + serial_number : string <<unique>> [0..1]
-        + installed_at : date [0..1]
-        + expires_at : date [0..1]
-        --
-        + device() : Device
-        + brand() : Brand
-        + typeName() : string
-        + expirationStatus() : string
-    }
+    + AgregarTecnico()
+    + ModificarTecnico()
+    + EliminarTecnico()
+    + MostrarTickets()
 }
 
-' ---------------------------------------------------------------------
-'  Mantenedores (catálogos)
-' ---------------------------------------------------------------------
-package "Mantenedores" {
+class Dispositivo {
+    - id : int
+    - nombre : string
+    - departamento : Departamento
+    - marca : Marca
+    - almacenamiento : Almacenamiento
+    - ram : Ram
+    - procesador : Procesador
+    - tipo : TipoDispositivo
 
-    class Brand {
-        + id : int <<PK>>
-        + name : string
-    }
-
-    class Storage {
-        + id : int <<PK>>
-        + type : string
-        + capacity : string
-    }
-
-    class Ram {
-        + id : int <<PK>>
-        + type : string
-        + capacity : string
-    }
-
-    class Processor {
-        + id : int <<PK>>
-        + brand : string
-        + model : string
-    }
-
-    class DeviceType {
-        + id : int <<PK>>
-        + name : string
-    }
-
-    class DeviceStatus {
-        + id : int <<PK>>
-        + name : string
-    }
-
-    class HardwareFailure {
-        + id : int <<PK>>
-        + name : string
-        + description : text
-    }
-
-    class SoftwareFailure {
-        + id : int <<PK>>
-        + name : string
-        + description : text
-    }
+    + AgregarDispositivo()
+    + ModificarDispositivo()
+    + EliminarDispositivo()
+    + MostrarDispositivo()
 }
 
-' ---------------------------------------------------------------------
-'  Soporte
-' ---------------------------------------------------------------------
-package "Soporte" {
+class PlacaMadre {
+    - id : int
+    - marca : string
+    - modelo : string
 
-    class Ticket {
-        + id : int <<PK>>
-        + device_id : int <<FK>>
-        + user_id : int <<FK>>
-        + technician_id : int <<FK>> [0..1]
-        + type : string
-        + problem_type : string
-        + error_description : text
-        + severity : string
-        + status : string
-        + comments : text [0..1]
-        + solution : text [0..1]
-        + scheduled_at : datetime [0..1]
-        + solved_at : datetime [0..1]
-        --
-        + device() : Device
-        + user() : User
-        + technician() : Technician
-    }
+    + AgregarPlacaMadre()
+    + ModificarPlacaMadre()
+    + EliminarPlacaMadre()
 }
 
-' ---------------------------------------------------------------------
-'  Relaciones (multiplicidad)
-' ---------------------------------------------------------------------
-User "0..*" --> "0..1" Department : supervisa >
-User ..> Rol
-Technician "0..*" --> "0..1" Department : atiende >
-Technician "0..1" -- "0..1" User : cuenta de acceso
+class Ticket {
+    - id : int
+    - tipo : string
+    - tipoProblema : string
+    - descripcion : string
+    - gravedad : string
+    - estado : string
+    - comentarios : string
+    - solucion : string
+    - fechaProgramada : datetime
+    - fechaCierre : datetime
+    - dispositivo : Dispositivo
+    - creadoPor : Usuario
+    - tecnico : Tecnico
+    - cerradoPor : Usuario
+    - tipoMantencion : TipoMantencion
 
-Department "1" *-- "0..*" Device : contiene >
-Device "0..*" --> "1" Brand
-Device "0..*" --> "1" Storage
-Device "0..*" --> "1" Ram
-Device "0..*" ..> "1" Processor
-Device "0..*" ..> "1" DeviceType
-Device "1" *-- "0..*" HardwareComponent : se compone de >
-HardwareComponent "0..*" --> "0..1" Brand
+    + CrearTicket()
+    + AsignarTecnico()
+    + CambiarEstado()
+    + CerrarTicket()
+}
 
-Ticket "0..*" --> "1" Device : reporta falla de >
-Ticket "0..*" --> "1" User : creado por >
-Ticket "0..*" --> "0..1" Technician : asignado a >
-Ticket ..> HardwareFailure : error_description\n(si es hardware)
-Ticket ..> SoftwareFailure : error_description\n(si es software)
+class TipoMantencion {
+    - id : int
+    - nombre : string
+    - descripcion : string
 
-' ---------------------------------------------------------------------
-'  Notas
-' ---------------------------------------------------------------------
-note right of Device
-  Las relaciones punteadas con
-  Processor y DeviceType están
-  en el modelo, pero aún falta la
-  migración que agrega
-  processor_id y device_type_id.
-end note
+    + MostrarTipos()
+}
 
-note bottom of Ticket
-  type: reactive / preventive
-  severity: low, medium, high, critical
-  status: pending, in_progress, closed
-end note
+class Marca {
+    - id : int
+    - nombre : string
 
-note bottom of DeviceStatus
-  Catálogo listo; todavía no
-  se asigna a los dispositivos.
-end note
+    + AgregarMarca()
+    + ModificarMarca()
+    + EliminarMarca()
+}
+
+class Almacenamiento {
+    - id : int
+    - tipo : string
+    - capacidad : string
+
+    + AgregarAlmacenamiento()
+    + ModificarAlmacenamiento()
+    + EliminarAlmacenamiento()
+}
+
+class Ram {
+    - id : int
+    - tipo : string
+    - capacidad : string
+
+    + AgregarRam()
+    + ModificarRam()
+    + EliminarRam()
+}
+
+class Procesador {
+    - id : int
+    - marca : string
+    - modelo : string
+
+    + AgregarProcesador()
+    + ModificarProcesador()
+    + EliminarProcesador()
+}
+
+class TipoDispositivo {
+    - id : int
+    - nombre : string
+
+    + AgregarTipo()
+    + ModificarTipo()
+    + EliminarTipo()
+}
+
+class EstadoDispositivo {
+    - id : int
+    - nombre : string
+
+    + AgregarEstado()
+    + ModificarEstado()
+    + EliminarEstado()
+}
+
+class FallaHardware {
+    - id : int
+    - nombre : string
+    - descripcion : string
+
+    + AgregarFalla()
+    + ModificarFalla()
+    + EliminarFalla()
+}
+
+class FallaSoftware {
+    - id : int
+    - nombre : string
+    - descripcion : string
+
+    + AgregarFalla()
+    + ModificarFalla()
+    + EliminarFalla()
+}
+
+' ordenar las clases en filas (lineas invisibles, solo para acomodar)
+Usuario -[hidden]right- Departamento
+Departamento -[hidden]right- Tecnico
+Tecnico -[hidden]right- Ticket
+Ticket -[hidden]right- TipoMantencion
+
+Usuario -[hidden]down- Dispositivo
+Dispositivo -[hidden]right- PlacaMadre
+PlacaMadre -[hidden]right- Marca
+Marca -[hidden]right- Almacenamiento
+Almacenamiento -[hidden]right- Ram
+
+Dispositivo -[hidden]down- Procesador
+Procesador -[hidden]right- TipoDispositivo
+TipoDispositivo -[hidden]right- EstadoDispositivo
+EstadoDispositivo -[hidden]right- FallaHardware
+FallaHardware -[hidden]right- FallaSoftware
 
 @enduml

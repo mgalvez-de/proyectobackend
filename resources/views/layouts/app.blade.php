@@ -73,6 +73,20 @@
             </script>
         @endif
 
+        {{-- mensajes de error de los controladores (ej: "No puedes eliminar tu propia cuenta") --}}
+        @if (session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se pudo completar',
+                        text: @json(session('error')),
+                        confirmButtonColor: '#D12421'
+                    });
+                });
+            </script>
+        @endif
+
         @stack('scripts')
     </body>
 </html>

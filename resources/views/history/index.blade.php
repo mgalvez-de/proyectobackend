@@ -24,8 +24,8 @@
 
         if ($soloPropios) {
             $breadcrumbs = [
-                'Inicio' => route('dashboard'),
-                'Mis reportes' => null,
+                'Mis reportes' => route('my-reports.index'),
+                $department->displayName() => null,
             ];
         } else {
             $breadcrumbs = $rol === 'admin'
@@ -47,8 +47,8 @@
                 : 'Mantenciones reactivas y preventivas de los dispositivos de este departamento.'"
             :count="$tickets->count()" unit="registro" :breadcrumbs="$breadcrumbs">
             @if ($soloPropios)
-                <x-button :href="route('dashboard')" variant="secondary">
-                    Volver al inicio
+                <x-button :href="route('my-reports.index')" variant="secondary">
+                    Ver todos mis reportes
                 </x-button>
             @else
                 <x-button :href="route('departments.show', $department)" variant="secondary">
@@ -227,14 +227,17 @@
 
                             <td class="px-5 py-4 text-center">
                                 @if (!$esPreventiva && $puedeCerrar && $ticket->status !== 'closed')
-                                    <form method="POST" action="{{ route('tickets.close', $ticket) }}">
+                                    {{-- al presionar "Cerrar" se pide la solución aplicada --}}
+                                    <form method="POST" action="{{ route('tickets.close', $ticket) }}"
+                                        onsubmit="return askSolution(event, this, {{ $ticket->id }})">
                                         @csrf
+                                        <input type="hidden" name="solution">
 
                                         <x-button type="submit" variant="success" size="sm">
                                             Cerrar
                                         </x-button>
                                     </form>
-                                @elseif ($esPreventiva && $puedeGestionarPreventivas && $ticket->status === 'pending')
+                                @elseif ($esPreventiva && $puedeGestionarPreventivas && in_array($ticket->status, ['pending', 'in_progress']))
                                     <div class="flex justify-center gap-2">
                                         <form method="POST"
                                             action="{{ route('preventive-maintenances.update', $ticket) }}">
@@ -275,4 +278,46 @@
         </div>
 
     </div>
+
+    <script>
+        // Pide la solución antes de cerrar un ticket; si queda vacía no se envía
+        function askSolution(event, form, ticketId) {
+            if (form.solution.value) {
+                return true;
+            }
+
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Cerrar ticket #' + ticketId,
+                input: 'textarea',
+                inputLabel: 'Solución aplicada',
+                inputPlaceholder: 'Describe qué se hizo para solucionar la falla...',
+                showCancelButton: true,
+                confirmButtonText: 'Cerrar ticket',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#D12421',
+                cancelButtonColor: '#6b7280',
+                inputValidator: value => ! value.trim() ? 'Debes escribir la solución para cerrar el ticket.' : null,
+            }).then(result => {
+                if (result.isConfirmed) {
+                    form.solution.value = result.value.trim();
+                    form.submit();
+                }
+            });
+
+            return false;
+        }
+
+        @if ($errors->any())
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo cerrar',
+                    text: @json($errors->first()),
+                    confirmButtonColor: '#D12421'
+                });
+            });
+        @endif
+    </script>
 </x-app-layout>

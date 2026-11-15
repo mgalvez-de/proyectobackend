@@ -21,13 +21,11 @@ class Ticket extends Model
         'closed_by',
         'technician_id',
         'solution',
-        'solved_at',
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
         'closed_at' => 'datetime',
-        'solved_at' => 'datetime',
     ];
 
     public function technician()
@@ -68,5 +66,19 @@ class Ticket extends Model
     public function isPreventive(): bool
     {
         return $this->type === 'preventive';
+    }
+
+    // cerrado (reactivo), completada o cancelada (preventiva): ya no se modifica
+    public function isFinished(): bool
+    {
+        return in_array($this->status, ['closed', 'completed', 'cancelled'], true);
+    }
+
+    // estados que puede elegir el técnico según el tipo de ticket
+    public function technicianStatuses(): array
+    {
+        return $this->isPreventive()
+            ? ['pending' => 'Pendiente', 'in_progress' => 'En proceso', 'completed' => 'Completada']
+            : ['pending' => 'Pendiente', 'in_progress' => 'En proceso', 'closed' => 'Cerrado'];
     }
 }

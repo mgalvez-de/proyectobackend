@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             RamSeeder::class,
             DeviceTypeSeeder::class,
             ProcessorSeeder::class,
+            MotherboardSeeder::class,
             DeviceStatusSeeder::class,
             HardwareFailureSeeder::class,
             SoftwareFailureSeeder::class,
@@ -36,8 +37,6 @@ class DatabaseSeeder extends Seeder
             // 3 dispositivos por departamento (usa los mantenedores de arriba)
             DeviceSeeder::class,
 
-            // piezas de los dispositivos (usa los dispositivos de arriba)
-            HardwareComponentSeeder::class,
         ]);
     }
 }

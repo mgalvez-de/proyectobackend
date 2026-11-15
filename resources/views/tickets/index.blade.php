@@ -4,7 +4,10 @@
     @php
         $breadcrumbs = auth()->user()->rol === 'admin' ? ['Inicio' => route('dashboard')] : [];
 
-        if ($device?->department) {
+        // el estudiante no puede abrir el departamento: vuelve a sus reportes
+        if (auth()->user()->rol === 'estudiante') {
+            $breadcrumbs['Mis reportes'] = route('my-reports.index');
+        } elseif ($device?->department && auth()->user()->canAccessDepartment($device->department)) {
             $breadcrumbs[$device->department->displayName()] = route('departments.show', $device->department);
         }
 
@@ -73,8 +76,12 @@
             <div class="mt-4 flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
                 <x-icon name="exclamation" class="w-5 h-5 shrink-0 mt-0.5" />
                 <p class="text-sm">
-                    No se seleccionó ningún dispositivo. Abre el detalle de un dispositivo y usa
-                    <strong>«Crear ticket para este dispositivo»</strong>.
+                    @if (auth()->user()->rol === 'estudiante')
+                        No se seleccionó ningún dispositivo. Escanea el <strong>código QR</strong> del equipo que tiene la falla.
+                    @else
+                        No se seleccionó ningún dispositivo. Abre el detalle de un dispositivo y usa
+                        <strong>«Crear ticket para este dispositivo»</strong>.
+                    @endif
                 </p>
             </div>
         @endif

@@ -13,12 +13,22 @@
             'pending' => ['label' => 'Pendiente', 'color' => 'yellow'],
             'in_progress' => ['label' => 'En proceso', 'color' => 'blue'],
             'closed' => ['label' => 'Cerrado', 'color' => 'green'],
+            'completed' => ['label' => 'Completada', 'color' => 'green'],
+            'cancelled' => ['label' => 'Cancelada', 'color' => 'gray'],
         ];
     @endphp
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <x-page-header title="Mis tickets" subtitle="Fallas que tienes asignadas para reparar." :count="$tickets->count()" unit="ticket" />
+        <x-page-header title="Mis tickets"
+            subtitle="Fallas y mantenciones preventivas que tienes asignadas. Los tickets cerrados quedan aquí como historial."
+            :count="$tickets->count()" unit="ticket" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <x-stat-card label="Pendientes" :value="$pendingCount" icon="clock" color="yellow" />
+            <x-stat-card label="En proceso" :value="$inProgressCount" icon="wrench" color="blue" />
+            <x-stat-card label="Cerrados (historial)" :value="$finishedCount" icon="check-badge" color="green" />
+        </div>
 
         @unless ($technician)
             <div class="mb-6 flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
@@ -32,14 +42,14 @@
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
 
-            <table id="my-tickets-table" class="w-full min-w-[900px] text-left text-sm text-slate-600">
+            <table id="my-tickets-table" class="w-full min-w-[1000px] text-left text-sm text-slate-600">
 
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
                     <tr>
                         <th class="px-5 py-4">ID</th>
                         <th class="px-5 py-4">Dispositivo</th>
-                        <th class="px-5 py-4">Departamento</th>
-                        <th class="px-5 py-4">Falla</th>
+                        <th class="px-5 py-4">Mantención</th>
+                        <th class="px-5 py-4">Detalle</th>
                         <th class="px-5 py-4">Gravedad</th>
                         <th class="px-5 py-4">Estado</th>
                         <th class="px-5 py-4">Fecha</th>
@@ -50,48 +60,85 @@
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($tickets as $ticket)
                         @php
-                            $severity = $severities[$ticket->severity] ?? ['label' => 'Sin definir', 'color' => 'gray'];
+                            $esPreventiva = $ticket->isPreventive();
+                            $severity = $severities[$ticket->severity] ?? null;
                             $status = $statuses[$ticket->status] ?? ['label' => $ticket->status, 'color' => 'gray'];
+                            $subtipo = $esPreventiva
+                                ? ($ticket->maintenanceType?->name ?? 'Sin tipo')
+                                : ucfirst($ticket->problem_type);
                         @endphp
 
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-5 py-4 font-mono text-xs text-slate-500" data-order="{{ $ticket->id }}">#{{ $ticket->id }}</td>
 
-                            <td class="px-5 py-4 font-medium text-gray-800">{{ $ticket->device?->name ?? 'Sin dispositivo' }}</td>
-
-                            <td class="px-5 py-4">{{ $ticket->device?->department?->displayName() ?? '—' }}</td>
-
                             <td class="px-5 py-4">
-                                <span class="block text-xs text-slate-400">{{ ucfirst($ticket->problem_type) }}</span>
-                                {{ $ticket->error_description }}
+                                <span class="block font-medium text-gray-800">{{ $ticket->device?->name ?? 'Sin dispositivo' }}</span>
+                                <span class="block text-xs text-slate-400">{{ $ticket->device?->department?->displayName() ?? '—' }}</span>
                             </td>
 
                             <td class="px-5 py-4">
-                                <x-badge :color="$severity['color']">{{ $severity['label'] }}</x-badge>
+                                <div class="flex flex-col gap-1.5">
+                                    <x-badge :color="$esPreventiva ? 'blue' : 'orange'">
+                                        {{ $esPreventiva ? 'Preventiva' : 'Reactiva' }}
+                                    </x-badge>
+                                    <span class="text-xs text-slate-500">{{ $subtipo }}</span>
+                                </div>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                {{ $ticket->error_description }}
+                                <span class="block mt-1 text-xs text-slate-400">Reportado por {{ $ticket->user?->name ?? '—' }}</span>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                @if ($severity)
+                                    <x-badge :color="$severity['color']">{{ $severity['label'] }}</x-badge>
+                                @else
+                                    <span class="text-slate-400">—</span>
+                                @endif
                             </td>
 
                             <td class="px-5 py-4">
                                 <x-badge :color="$status['color']" dot>{{ $status['label'] }}</x-badge>
+
+                                @if ($ticket->closed_at)
+                                    <span class="block mt-1.5 text-xs text-slate-400">{{ $ticket->closed_at->format('d/m/Y H:i') }}</span>
+                                @endif
+
+                                @if ($ticket->solution)
+                                    <span class="mt-1 block max-w-[12rem] truncate text-xs text-slate-400" title="{{ $ticket->solution }}">
+                                        {{ $ticket->solution }}
+                                    </span>
+                                @endif
                             </td>
 
                             <td class="px-5 py-4 whitespace-nowrap" data-order="{{ $ticket->created_at->timestamp }}">
                                 {{ $ticket->created_at->format('d/m/Y H:i') }}
+
+                                @if ($esPreventiva && $ticket->scheduled_at)
+                                    <span class="block text-xs text-slate-500">Programada: {{ $ticket->scheduled_at->format('d/m/Y H:i') }}</span>
+                                @endif
                             </td>
 
                             <td class="px-5 py-4 text-center">
-                                <button type="button" onclick='openAttend(
-                                        {{ $ticket->id }},
-                                        @json($ticket->device?->name ?? "Sin dispositivo"),
-                                        @json($ticket->error_description),
-                                        @json($ticket->comments ?? ""),
-                                        @json($ticket->status),
-                                        @json($ticket->solution ?? "")
-                                    )'
-                                    class="inline-flex items-center gap-1.5 rounded-md bg-ucsc px-3 py-1.5 text-xs font-semibold text-white hover:bg-ucsc-dark transition-colors"
-                                    title="Atender ticket">
-                                    <x-icon name="wrench" class="w-4 h-4" />
-                                    Atender
-                                </button>
+                                @if ($ticket->isFinished())
+                                    <span class="text-xs text-slate-400">En historial</span>
+                                @else
+                                    <button type="button" onclick='openAttend(
+                                            {{ $ticket->id }},
+                                            @json($ticket->device?->name ?? "Sin dispositivo"),
+                                            @json($ticket->error_description),
+                                            @json($ticket->comments ?? ""),
+                                            @json($ticket->status),
+                                            @json($ticket->solution ?? ""),
+                                            @json($ticket->technicianStatuses())
+                                        )'
+                                        class="inline-flex items-center gap-1.5 rounded-md bg-ucsc px-3 py-1.5 text-xs font-semibold text-white hover:bg-ucsc-dark transition-colors"
+                                        title="Atender ticket">
+                                        <x-icon name="wrench" class="w-4 h-4" />
+                                        Atender
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -144,9 +191,7 @@
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
                             <select name="status" id="attendStatus" required
                                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ucsc/20 focus:border-ucsc transition">
-                                <option value="pending">Pendiente</option>
-                                <option value="in_progress">En proceso</option>
-                                <option value="closed">Cerrado</option>
+                                {{-- las opciones se llenan según el tipo de ticket (reactivo o preventivo) --}}
                             </select>
                         </div>
 
@@ -182,14 +227,18 @@
 
         <script>
 
-            function openAttend(id, device, failure, comments, status, solution) {
+            function openAttend(id, device, failure, comments, status, solution, options) {
+                const select = document.getElementById('attendStatus');
+                select.innerHTML = '';
+                Object.entries(options).forEach(([value, label]) => select.add(new Option(label, value)));
+
                 document.getElementById('attendModal').classList.remove('hidden');
 
                 document.getElementById('attendId').textContent = '#' + id;
                 document.getElementById('attendDevice').textContent = device;
                 document.getElementById('attendFailure').textContent = failure;
                 document.getElementById('attendComments').textContent = comments || '—';
-                document.getElementById('attendStatus').value = status;
+                select.value = status;
                 document.getElementById('attendSolution').value = solution;
 
                 document.getElementById('attendForm').action = '/mis-tickets/' + id;

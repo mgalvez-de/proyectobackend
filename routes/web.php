@@ -19,8 +19,9 @@ use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\MyTicketController;
 use App\Http\Controllers\TicketAssignmentController;
 use App\Http\Controllers\ApiDocsController;
-use App\Http\Controllers\HardwareComponentController;
+use App\Http\Controllers\MotherboardController;
 use App\Http\Controllers\PreventiveMaintenanceController;
+use App\Http\Controllers\MyReportController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -43,16 +44,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-    Route::resource('brands', BrandController::class);
-
-    Route::resource('storages', StorageController::class);
-
     Route::get('/departamentos/{department}', [DeviceController::class, 'index'])
         ->name('departments.show');
 
-    Route::resource('it', DeviceTypeController::class);
+    // reportar fallas: cualquier usuario con sesión (el estudiante llega por el QR del equipo)
+    Route::resource('tickets', TicketController::class)
+        ->only(['index', 'create', 'store']);
 
-    Route::resource('tickets', TicketController::class);
+    // historial de los tickets que reportó el estudiante (pendientes, en proceso y cerrados)
+    Route::get('/mis-reportes', [MyReportController::class, 'index'])
+        ->middleware('role:estudiante')
+        ->name('my-reports.index');
 
     Route::post('/tickets/{ticket}/close', [TicketController::class, 'close'])
         ->middleware('role:admin,supervisor')
@@ -69,20 +71,29 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    Route::resource('rams', RamController::class);
-
     Route::resource('devices', DeviceController::class)
         ->only(['store', 'update', 'destroy']);
 
-    Route::resource('device-types', DeviceTypeController::class);
+    // mantenedores: solo el administrador (antes cualquier usuario con sesión podía editarlos)
+    Route::middleware('role:admin')->group(function () {
+        Route::resource('brands', BrandController::class);
 
-    Route::resource('processors', ProcessorController::class);
+        Route::resource('storages', StorageController::class);
 
-    Route::resource('device-statuses', DeviceStatusController::class);
+        Route::resource('rams', RamController::class);
 
-    Route::resource('hardware-failures', HardwareFailureController::class);
+        Route::resource('device-types', DeviceTypeController::class);
 
-    Route::resource('software-failures', SoftwareFailureController::class);
+        Route::resource('processors', ProcessorController::class);
+
+        Route::resource('motherboards', MotherboardController::class);
+
+        Route::resource('device-statuses', DeviceStatusController::class);
+
+        Route::resource('hardware-failures', HardwareFailureController::class);
+
+        Route::resource('software-failures', SoftwareFailureController::class);
+    });
 
     Route::get('/departments/{department}/history', [HistoryController::class, 'index'])
         ->name('departments.history');
@@ -94,8 +105,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('technicians', TechnicianController::class)
             ->only(['index', 'store', 'update', 'destroy']);
 
-        Route::resource('hardware-components', HardwareComponentController::class)
-            ->only(['index', 'store', 'update', 'destroy']);
 
         // documentación de la API
         Route::get('/documentacion-api', [ApiDocsController::class, 'index'])
