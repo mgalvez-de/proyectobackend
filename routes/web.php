@@ -20,6 +20,7 @@ use App\Http\Controllers\MyTicketController;
 use App\Http\Controllers\TicketAssignmentController;
 use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\HardwareComponentController;
+use App\Http\Controllers\PreventiveMaintenanceController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -52,6 +53,20 @@ Route::middleware('auth')->group(function () {
     Route::resource('it', DeviceTypeController::class);
 
     Route::resource('tickets', TicketController::class);
+
+    Route::post('/tickets/{ticket}/close', [TicketController::class, 'close'])
+        ->middleware('role:admin,supervisor')
+        ->name('tickets.close');
+
+    // el admin también programa y gestiona preventivas (la vista le muestra los botones);
+    // el controlador revisa que tenga acceso al departamento
+    Route::middleware('role:admin,supervisor')->group(function () {
+        Route::post('/preventive-maintenances', [PreventiveMaintenanceController::class, 'store'])
+            ->name('preventive-maintenances.store');
+
+        Route::patch('/preventive-maintenances/{ticket}', [PreventiveMaintenanceController::class, 'update'])
+            ->name('preventive-maintenances.update');
+    });
 
 
     Route::resource('rams', RamController::class);

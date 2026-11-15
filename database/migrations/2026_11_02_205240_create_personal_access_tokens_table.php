@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // la tabla pudo crearse antes con una migración duplicada de otra rama
+        if (Schema::hasTable('personal_access_tokens')) {
+            return;
+        }
+
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
             $table->morphs('tokenable');
