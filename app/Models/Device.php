@@ -17,6 +17,7 @@ class Device extends Model
         'name',
         'brand_id',
         'device_type_id',
+        'device_status_id',
         'storage_id',
         'processor_id',
         'ram_id',
@@ -52,6 +53,17 @@ class Device extends Model
     public function deviceType()
     {
         return $this->belongsTo(DeviceType::class);
+    }
+
+    // estado del equipo: operativo, en mantención o dado de baja
+    public function deviceStatus()
+    {
+        return $this->belongsTo(DeviceStatus::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 
 }

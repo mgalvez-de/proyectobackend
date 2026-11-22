@@ -73,6 +73,8 @@
 
                         <th class="px-6 py-4">RAM</th>
 
+                        <th class="px-6 py-4">Estado</th>
+
                         <th class="px-6 py-4 text-center dt-no-sort">Acciones</th>
 
                     </tr>
@@ -104,6 +106,14 @@
                                 {{ $device->ram->type }} - {{ $device->ram->capacity }}
                             </td>
 
+                            <td class="px-6 py-4">
+                                @if ($device->deviceStatus)
+                                    <x-badge :color="$device->deviceStatus->color()" dot>{{ $device->deviceStatus->name }}</x-badge>
+                                @else
+                                    <span class="text-slate-400">Sin estado</span>
+                                @endif
+                            </td>
+
                             <td class="px-6 py-4 text-center">
 
                                 <div class="flex justify-center gap-2">
@@ -118,7 +128,8 @@
                                          @json($device->deviceType?->name ?? 'Sin tipo'),
                                          @json(($device->storage?->type ?? 'Sin almacenamiento') . ' - ' . ($device->storage?->capacity ?? '')),
                                          @json(($device->processor?->brand ?? 'Sin procesador') . ' - ' . ($device->processor?->model ?? '')),
-                                        @json(($device->ram?->type ?? 'Sin RAM') . ' - ' . ($device->ram?->capacity ?? ''))
+                                        @json(($device->ram?->type ?? 'Sin RAM') . ' - ' . ($device->ram?->capacity ?? '')),
+                                        @json($device->deviceStatus?->name ?? 'Sin estado')
                                                          )'
                                         class="p-1.5 bg-gray-500 text-white hover:bg-gray-600 rounded transition-colors"
                                         title="Ver dispositivo">
@@ -140,7 +151,8 @@
                                             @json($device->name),
                                             {{ $device->brand_id }},
                                             {{ $device->storage_id }},
-                                            {{ $device->ram_id }}
+                                            {{ $device->ram_id }},
+                                            @json($device->device_status_id)
                                         )'
                                         class="p-1.5 bg-yellow-400 text-gray-900 hover:bg-yellow-500 rounded transition-colors"
                                         title="Editar dispositivo">
@@ -271,6 +283,25 @@
                             @foreach ($deviceTypes as $deviceType)
                                 <option value="{{ $deviceType->id }}">
                                     {{ $deviceType->name }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Estado del equipo
+                        </label>
+
+                        <select name="device_status_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
+
+                            <option value="">Seleccione el estado</option>
+
+                            @foreach ($deviceStatuses as $deviceStatus)
+                                <option value="{{ $deviceStatus->id }}" @selected(str_contains(mb_strtolower($deviceStatus->name), 'operativ'))>
+                                    {{ $deviceStatus->name }}
                                 </option>
                             @endforeach
 
@@ -436,6 +467,11 @@
                     <span id="showRam"></span>
                 </p>
 
+                <p>
+                    <strong>Estado:</strong>
+                    <span id="showStatus"></span>
+                </p>
+
 
                 <div class="mt-6 border-t border-gray-200 pt-5">
                     <h3 class="text-sm font-semibold text-gray-700 text-center mb-3">
@@ -462,6 +498,12 @@
                         class="mt-3 inline-block w-full text-center bg-green-600 text-white font-medium py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors">
                         Programar mantención preventiva
                     </button>
+
+                    <!-- historial del equipo en PDF -->
+                    <a id="historyPdfButton" href="#"
+                        class="mt-3 inline-block w-full text-center bg-slate-700 text-white font-medium py-2.5 px-4 rounded-md hover:bg-slate-800 transition-colors">
+                        Descargar historial (PDF)
+                    </a>
                 @endif
 
 
@@ -549,6 +591,22 @@
                             @foreach ($deviceTypes as $deviceType)
                                 <option value="{{ $deviceType->id }}">
                                     {{ $deviceType->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Estado del equipo
+                        </label>
+
+                        <select id="editStatus" name="device_status_id" required
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
+                            <option value="">Seleccione el estado</option>
+                            @foreach ($deviceStatuses as $deviceStatus)
+                                <option value="{{ $deviceStatus->id }}">
+                                    {{ $deviceStatus->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -822,7 +880,7 @@
 
         }
 
-        function openShow(id, name, brand, deviceType, storage, processor, ram) {
+        function openShow(id, name, brand, deviceType, storage, processor, ram, status) {
             document.getElementById('showModal').classList.remove('hidden');
 
             dispositivoSeleccionado = id;
@@ -837,6 +895,13 @@
             document.getElementById('showStorage').textContent = storage;
             document.getElementById('showProcessor').textContent = processor;
             document.getElementById('showRam').textContent = ram;
+            document.getElementById('showStatus').textContent = status;
+
+            // botón para descargar el historial de este equipo en PDF
+            const pdfButton = document.getElementById('historyPdfButton');
+            if (pdfButton) {
+                pdfButton.href = '/devices/' + id + '/historial-pdf';
+            }
 
             // generar el enlace al formulario del dispositivo
             const qrContainer = document.getElementById('deviceQRCode');
@@ -872,7 +937,7 @@
         }
 
 
-        function openEdit(id, name, brandId, storageId, ramId) {
+        function openEdit(id, name, brandId, storageId, ramId, statusId) {
 
             document
                 .getElementById('editModal')
@@ -886,6 +951,8 @@
             document.getElementById('editStorage').value = storageId;
 
             document.getElementById('editRam').value = ramId;
+
+            document.getElementById('editStatus').value = statusId ?? '';
 
             document.getElementById('editForm').action = '/devices/' + id;
 
