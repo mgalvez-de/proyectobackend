@@ -189,7 +189,6 @@
                             </td>
 
                         </tr>
-
                     @endforeach
 
                 </tbody>
@@ -762,7 +761,8 @@
                                 Fecha programada
                             </label>
 
-                            <input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" required
+                            <input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}"
+                                required
                                 class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc">
 
                             <x-input-error :messages="$errors->get('scheduled_at')" class="mt-2" />
@@ -815,8 +815,7 @@
                             </label>
 
                             <textarea name="comments" rows="2"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc"
-                                placeholder="Opcional">{{ old('comments') }}</textarea>
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-ucsc focus:ring-ucsc" placeholder="Opcional">{{ old('comments') }}</textarea>
 
                             <x-input-error :messages="$errors->get('comments')" class="mt-2" />
 
@@ -910,7 +909,7 @@
 
 
             // QR_BASE_URL en el .env (ej: la IP del PC en la red) o, si no está, la dirección actual de la página
-            const baseUrl = @json(rtrim(config('app.qr_url') ?: url('/'), '/'));
+            const baseUrl = 'http://10.112.178.160:8000';
             const ticketUrl = baseUrl + '/tickets/create?device_id=' + id;
 
             qrContainer.innerHTML = '';
