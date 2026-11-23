@@ -74,6 +74,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('devices', DeviceController::class)
         ->only(['store', 'update', 'destroy']);
 
+    // historial del equipo en PDF (el controlador revisa que tenga acceso al departamento)
+    Route::get('/devices/{device}/historial-pdf', [DeviceController::class, 'historyPdf'])
+        ->name('devices.history-pdf');
+
     // mantenedores: solo el administrador (antes cualquier usuario con sesión podía editarlos)
     Route::middleware('role:admin')->group(function () {
         Route::resource('brands', BrandController::class);

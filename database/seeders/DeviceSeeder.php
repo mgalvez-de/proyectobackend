@@ -8,6 +8,7 @@ use App\Models\Brand;
 use App\Models\Department;
 use App\Models\Device;
 use App\Models\DeviceType;
+use App\Models\DeviceStatus;
 use App\Models\Processor;
 use App\Models\Ram;
 use App\Models\Storage;
@@ -38,6 +39,8 @@ class DeviceSeeder extends Seeder
         // procesador y tipo solo si la tabla ya tiene esas columnas (migración 2026_11_15)
         $hasType = Schema::hasColumn('devices', 'device_type_id');
         $hasProcessor = Schema::hasColumn('devices', 'processor_id');
+        $hasStatus = Schema::hasColumn('devices', 'device_status_id');
+        $operativo = DeviceStatus::where('name', 'Operativo')->value('id');
 
         foreach ($devices as $departmentName => $items) {
             $department = Department::where('name', $departmentName)->first();
@@ -60,6 +63,11 @@ class DeviceSeeder extends Seeder
 
                 if ($hasProcessor) {
                     $data['processor_id'] = Processor::where('model', $processor)->value('id');
+                }
+
+                // los equipos de prueba parten operativos
+                if ($hasStatus) {
+                    $data['device_status_id'] = $operativo;
                 }
 
                 // updateOrCreate: si el equipo ya existía, le completa el procesador y el tipo

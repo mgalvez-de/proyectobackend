@@ -1,59 +1,56 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gestión de equipos tecnológicos UCSC
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma web para llevar el inventario de los equipos tecnológicos de la UCSC (Informática, Biblioteca y Sala de Computación) y seguir cada falla desde que alguien la reporta con el código QR del equipo hasta que un técnico la repara.
 
-## About Laravel
+Proyecto semestral de **Programación Backend (IT1030B)** · Ingeniería de Ejecución en Informática · Docente: Felipe Valentín.
+Equipo: Diego Bustos, Matías Gálvez, Teresa Cartes y Matías Jerez.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Qué hace
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Perfil | Qué puede hacer |
+|---|---|
+| Administrador | Ve los tres departamentos, administra usuarios, técnicos y todos los mantenedores (marcas, tipos, RAM, almacenamiento, procesadores, placas madre, estados, fallas). |
+| Supervisor (encargado) | Trabaja solo con su departamento: equipos, estado de cada equipo, historial, asignación de técnicos, mantenciones preventivas e historial de cada equipo en PDF. |
+| Técnico | Ve sus tickets asignados, los pasa a "en proceso" y los cierra escribiendo la solución. |
+| Estudiante | Reporta fallas escaneando el código QR del equipo y sigue sus reportes en "Mis reportes". |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+También tiene una API REST (pública para RAM y procesadores, privada con token de Sanctum para equipos y estadísticas), documentada dentro de la plataforma en **Desarrollo → Documentación API**.
 
-## Learning Laravel
+## Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP 8.2+, Composer, Node.js y MySQL (por ejemplo con XAMPP).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación
 
-## Laravel Sponsors
+```bash
+git clone https://github.com/mgalvez-de/proyectobackend.git
+cd proyectobackend
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+En `.env` se configura la base de datos (por defecto MySQL, base `laravel`, usuario `root`). Con MySQL encendido:
 
-### Premium Partners
+```bash
+php artisan migrate --seed   # crea las tablas, los mantenedores, 9 equipos, usuarios y tickets de ejemplo
+npm run build                # o dejar "npm run dev" abierto mientras se trabaja
+php artisan serve
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Entrar a http://127.0.0.1:8000. Las cuentas de prueba (una por perfil) están en `database/seeders/UserSeeder.php` y `database/seeders/TechnicianSeeder.php`; el inicio de sesión es con el **RUT sin puntos ni guion**. No hay registro público: las cuentas nuevas las crea el administrador.
 
-## Contributing
+Para que el código QR funcione desde un celular, el celular debe estar en la misma red que el computador. La dirección que lleva el QR se puede fijar con `QR_BASE_URL` en `.env` (por ejemplo `http://192.168.1.10:8000`); si se deja vacía, el QR usa la misma dirección con la que se abrió la página.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Pruebas
 
-## Code of Conduct
+```bash
+php artisan test
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Las pruebas de la API están en `test_api.ipynb` (Python) y en la colección de Postman que se descarga desde la Documentación API.
 
-## Security Vulnerabilities
+## Documentación
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Manual de Usuario, Manual Técnico y Especificación de Requisitos (entregados junto al proyecto), y los diagramas en `docs/diagramas`.

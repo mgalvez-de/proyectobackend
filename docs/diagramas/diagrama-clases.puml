@@ -54,11 +54,13 @@ class Dispositivo {
     - ram : Ram
     - procesador : Procesador
     - tipo : TipoDispositivo
+    - estado : EstadoDispositivo
 
     + AgregarDispositivo()
     + ModificarDispositivo()
     + EliminarDispositivo()
     + MostrarDispositivo()
+    + DescargarHistorialPDF()
 }
 
 class PlacaMadre {

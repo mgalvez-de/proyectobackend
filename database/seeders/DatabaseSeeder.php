@@ -37,6 +37,8 @@ class DatabaseSeeder extends Seeder
             // 3 dispositivos por departamento (usa los mantenedores de arriba)
             DeviceSeeder::class,
 
+            // tickets de ejemplo (solo si todavía no hay ninguno)
+            DemoTicketSeeder::class,
         ]);
     }
 }

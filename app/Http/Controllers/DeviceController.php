@@ -10,6 +10,8 @@ use App\Models\Storage;
 use App\Models\Ram;
 use App\Models\Department;
 use App\Models\MaintenanceType;
+use App\Models\DeviceStatus;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
@@ -24,7 +26,8 @@ class DeviceController extends Controller
             'ram',
             'department',
             'processor',
-            'deviceType'
+            'deviceType',
+            'deviceStatus'
         ])
             ->where('department_id', $department->id)
             ->get();
@@ -35,6 +38,7 @@ class DeviceController extends Controller
         $processors = Processor::all();
         $deviceTypes = DeviceType::all();
         $maintenanceTypes = MaintenanceType::all();
+        $deviceStatuses = DeviceStatus::all();
 
         return view('departments.show', compact(
             'devices',
@@ -44,6 +48,7 @@ class DeviceController extends Controller
             'processors',
             'deviceTypes',
             'maintenanceTypes',
+            'deviceStatuses',
             'department'
         ));
     }
@@ -57,6 +62,7 @@ class DeviceController extends Controller
             'ram_id' => 'required|exists:rams,id',
             'processor_id' => 'required|exists:processors,id',
             'device_type_id' => 'required|exists:device_types,id',
+            'device_status_id' => 'required|exists:device_statuses,id',
             'department_id' => 'required|exists:departments,id'
         ]);
 
@@ -71,6 +77,7 @@ class DeviceController extends Controller
             'ram_id' => $request->ram_id,
             'processor_id' => $request->processor_id,
             'device_type_id' => $request->device_type_id,
+            'device_status_id' => $request->device_status_id,
             'department_id' => $department->id
         ]);
 
@@ -89,7 +96,8 @@ class DeviceController extends Controller
             'storage_id' => 'required|exists:storages,id',
             'ram_id' => 'required|exists:rams,id',
             'processor_id' => 'required|exists:processors,id',
-            'device_type_id' => 'required|exists:device_types,id'
+            'device_type_id' => 'required|exists:device_types,id',
+            'device_status_id' => 'required|exists:device_statuses,id'
         ]);
 
         $device->update([
@@ -98,12 +106,36 @@ class DeviceController extends Controller
             'storage_id' => $request->storage_id,
             'ram_id' => $request->ram_id,
             'processor_id' => $request->processor_id,
-            'device_type_id' => $request->device_type_id
+            'device_type_id' => $request->device_type_id,
+            'device_status_id' => $request->device_status_id
         ]);
 
         return redirect()
             ->route('departments.show', $device->department_id)
             ->with('success', 'Dispositivo actualizado correctamente.');
+    }
+
+    // Historial del equipo en PDF: quién reportó, quién reparó, la falla, las fechas y la solución
+    public function historyPdf(Device $device)
+    {
+        $device->load(['department', 'brand', 'deviceType', 'deviceStatus', 'processor', 'ram', 'storage']);
+
+        $this->authorizeDepartment($device->department);
+
+        $tickets = $device->tickets()
+            ->with(['user', 'technician', 'closedBy', 'maintenanceType'])
+            ->orderBy('created_at')
+            ->get();
+
+        $pdf = Pdf::loadView('devices.history-pdf', [
+            'device' => $device,
+            'tickets' => $tickets,
+            'generatedAt' => now(),
+            'generatedBy' => auth()->user(),
+        ])->setPaper('letter', 'landscape')
+            ->setOption('isFontSubsettingEnabled', true); // solo las letras que se usan: el archivo pesa mucho menos
+
+        return $pdf->download('historial-' . \Illuminate\Support\Str::slug($device->name) . '.pdf');
     }
 
     public function destroy(Device $device)
