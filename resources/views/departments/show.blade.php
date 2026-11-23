@@ -152,7 +152,9 @@
                                             {{ $device->brand_id }},
                                             {{ $device->storage_id }},
                                             {{ $device->ram_id }},
-                                            @json($device->device_status_id)
+                                            @json($device->device_status_id),
+                                            @json($device->device_type_id),
+                                            @json($device->processor_id)
                                         )'
                                         class="p-1.5 bg-yellow-400 text-gray-900 hover:bg-yellow-500 rounded transition-colors"
                                         title="Editar dispositivo">
@@ -937,7 +939,7 @@
         }
 
 
-        function openEdit(id, name, brandId, storageId, ramId, statusId) {
+        function openEdit(id, name, brandId, storageId, ramId, statusId, typeId, processorId) {
 
             document
                 .getElementById('editModal')
@@ -953,6 +955,11 @@
             document.getElementById('editRam').value = ramId;
 
             document.getElementById('editStatus').value = statusId ?? '';
+
+            // tipo y procesador actuales del equipo (si no, quedaba marcado el primero de la lista)
+            document.getElementById('editDeviceType').value = typeId ?? '';
+
+            document.getElementById('editProcessor').value = processorId ?? '';
 
             document.getElementById('editForm').action = '/devices/' + id;
 
