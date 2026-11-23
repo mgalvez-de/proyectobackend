@@ -43,7 +43,7 @@ Definida en `routes/api.php` fuera de cualquier middleware.
 | POST | `/api/rams` | Crea una RAM (`type`, `capacity`) |
 | GET | `/api/rams/{id}` | Muestra una RAM |
 | PUT/PATCH | `/api/rams/{id}` | Actualiza |
-| DELETE | `/api/rams/{id}` | Elimina (204) |
+| DELETE | `/api/rams/{id}` | Elimina (200 con mensaje; 409 si algún equipo usa esa RAM) |
 
 ### Procesadores — `App\Http\Controllers\Api\ProcessorController`
 

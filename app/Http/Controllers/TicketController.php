@@ -91,27 +91,26 @@ class TicketController extends Controller
 
         $mensaje = 'Ticket creado correctamente.';
 
-        $rol = auth()->user()->rol;
-
-        if ($rol === 'estudiante') {
+        // el estudiante ve el ticket en "Mis reportes"; el resto, en el historial del departamento
+        if (auth()->user()->rol === 'estudiante') {
             return redirect()
-                ->route('departments.history', $device->department_id)
+                ->route('my-reports.index')
                 ->with('success', $mensaje);
         }
 
-        if ($rol === 'supervisor') {
+        if (auth()->user()->rol === 'tecnico') {
             return redirect()
-                ->route('departments.history', $device->department_id)
+                ->route('my-tickets.index')
                 ->with('success', $mensaje);
         }
 
-        // Administrador: historial de cualquier departamento
         return redirect()
             ->route('departments.history', $device->department_id)
             ->with('success', $mensaje);
     }
 
-    public function close(Ticket $ticket)
+    // Cierre desde el historial (admin o supervisor): siempre pide la solución aplicada
+    public function close(Request $request, Ticket $ticket)
     {
         abort_unless($ticket->type === 'reactive', 404);
 
@@ -121,8 +120,15 @@ class TicketController extends Controller
             'No tienes acceso a este departamento.'
         );
 
+        $data = $request->validate([
+            'solution' => ['required', 'string', 'max:2000'],
+        ], [
+            'solution.required' => 'Para cerrar el ticket debes escribir la solución aplicada.',
+        ]);
+
         $ticket->update([
             'status' => 'closed',
+            'solution' => $data['solution'],
             'closed_at' => now(),
             'closed_by' => auth()->id(),
         ]);

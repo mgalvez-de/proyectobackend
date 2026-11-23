@@ -37,7 +37,7 @@
             $link('rams.index', 'Capacidad de RAM', 'server'),
             $link('storages.index', 'Almacenamiento', 'database'),
             $link('processors.index', 'Procesadores', 'chip'),
-            $link('hardware-components.index', 'Componentes', 'squares-plus'),
+            $link('motherboards.index', 'Placas madre', 'squares-plus'),
         ];
 
         $sections['Disponibilidad'] = [
@@ -74,6 +74,8 @@
         ];
     } elseif ($user->rol === 'tecnico') {
         $sections['Mi trabajo'] = [$link('my-tickets.index', 'Mis tickets', 'wrench')];
+    } elseif ($user->rol === 'estudiante') {
+        $sections['Mis tickets'] = [$link('my-reports.index', 'Mis reportes', 'ticket')];
     } else {
         $sections['General'] = [$link('dashboard', 'Inicio', 'home')];
     }

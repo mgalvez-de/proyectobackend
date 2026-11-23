@@ -1,0 +1,200 @@
+@startuml diagrama-clases
+' Sistema de Gestión de Dispositivos Tecnológicos UCSC - Diagrama de clases
+' Para verlo en VS Code: abrir este archivo y presionar Alt + D
+
+' motor de dibujo incluido en PlantUML (no necesita instalar Graphviz)
+!pragma layout smetana
+
+class Usuario {
+    - id : int
+    - rut : string
+    - nombre : string
+    - email : string
+    - contrasena : string
+    - rol : string
+    - departamento : Departamento
+
+    + AgregarUsuario()
+    + ModificarUsuario()
+    + EliminarUsuario()
+    + MostrarUsuarios()
+}
+
+class Departamento {
+    - id : int
+    - nombre : string
+    - dispositivos : List<Dispositivo>
+    - supervisores : List<Usuario>
+
+    + MostrarDispositivos()
+    + MostrarHistorial()
+}
+
+class Tecnico {
+    - id : int
+    - nombre : string
+    - email : string
+    - telefono : string
+    - especialidad : string
+    - departamento : Departamento
+    - usuario : Usuario
+
+    + AgregarTecnico()
+    + ModificarTecnico()
+    + EliminarTecnico()
+    + MostrarTickets()
+}
+
+class Dispositivo {
+    - id : int
+    - nombre : string
+    - departamento : Departamento
+    - marca : Marca
+    - almacenamiento : Almacenamiento
+    - ram : Ram
+    - procesador : Procesador
+    - tipo : TipoDispositivo
+
+    + AgregarDispositivo()
+    + ModificarDispositivo()
+    + EliminarDispositivo()
+    + MostrarDispositivo()
+}
+
+class PlacaMadre {
+    - id : int
+    - marca : string
+    - modelo : string
+
+    + AgregarPlacaMadre()
+    + ModificarPlacaMadre()
+    + EliminarPlacaMadre()
+}
+
+class Ticket {
+    - id : int
+    - tipo : string
+    - tipoProblema : string
+    - descripcion : string
+    - gravedad : string
+    - estado : string
+    - comentarios : string
+    - solucion : string
+    - fechaProgramada : datetime
+    - fechaCierre : datetime
+    - dispositivo : Dispositivo
+    - creadoPor : Usuario
+    - tecnico : Tecnico
+    - cerradoPor : Usuario
+    - tipoMantencion : TipoMantencion
+
+    + CrearTicket()
+    + AsignarTecnico()
+    + CambiarEstado()
+    + CerrarTicket()
+}
+
+class TipoMantencion {
+    - id : int
+    - nombre : string
+    - descripcion : string
+
+    + MostrarTipos()
+}
+
+class Marca {
+    - id : int
+    - nombre : string
+
+    + AgregarMarca()
+    + ModificarMarca()
+    + EliminarMarca()
+}
+
+class Almacenamiento {
+    - id : int
+    - tipo : string
+    - capacidad : string
+
+    + AgregarAlmacenamiento()
+    + ModificarAlmacenamiento()
+    + EliminarAlmacenamiento()
+}
+
+class Ram {
+    - id : int
+    - tipo : string
+    - capacidad : string
+
+    + AgregarRam()
+    + ModificarRam()
+    + EliminarRam()
+}
+
+class Procesador {
+    - id : int
+    - marca : string
+    - modelo : string
+
+    + AgregarProcesador()
+    + ModificarProcesador()
+    + EliminarProcesador()
+}
+
+class TipoDispositivo {
+    - id : int
+    - nombre : string
+
+    + AgregarTipo()
+    + ModificarTipo()
+    + EliminarTipo()
+}
+
+class EstadoDispositivo {
+    - id : int
+    - nombre : string
+
+    + AgregarEstado()
+    + ModificarEstado()
+    + EliminarEstado()
+}
+
+class FallaHardware {
+    - id : int
+    - nombre : string
+    - descripcion : string
+
+    + AgregarFalla()
+    + ModificarFalla()
+    + EliminarFalla()
+}
+
+class FallaSoftware {
+    - id : int
+    - nombre : string
+    - descripcion : string
+
+    + AgregarFalla()
+    + ModificarFalla()
+    + EliminarFalla()
+}
+
+' ordenar las clases en filas (lineas invisibles, solo para acomodar)
+Usuario -[hidden]right- Departamento
+Departamento -[hidden]right- Tecnico
+Tecnico -[hidden]right- Ticket
+Ticket -[hidden]right- TipoMantencion
+
+Usuario -[hidden]down- Dispositivo
+Dispositivo -[hidden]right- PlacaMadre
+PlacaMadre -[hidden]right- Marca
+Marca -[hidden]right- Almacenamiento
+Almacenamiento -[hidden]right- Ram
+
+Dispositivo -[hidden]down- Procesador
+Procesador -[hidden]right- TipoDispositivo
+TipoDispositivo -[hidden]right- EstadoDispositivo
+EstadoDispositivo -[hidden]right- FallaHardware
+FallaHardware -[hidden]right- FallaSoftware
+
+@enduml

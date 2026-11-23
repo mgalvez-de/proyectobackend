@@ -19,6 +19,11 @@ class DashboardController extends Controller
             return redirect()->route('my-tickets.index');
         }
 
+        // el estudiante no tiene departamentos: entra a su historial de reportes
+        if ($user->rol === 'estudiante') {
+            return redirect()->route('my-reports.index');
+        }
+
         $departments = Department::withCount('devices')
             ->get()
             ->filter(fn ($department) => $user->canAccessDepartment($department));

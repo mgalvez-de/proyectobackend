@@ -21,7 +21,7 @@ class MaintenanceTypeSeeder extends Seeder
 
         MaintenanceType::firstOrCreate(
             ['name' => 'Revisión de hardware'],
-            ['description' => 'Revisión del estado de los componentes y de sus conexiones.']
+            ['description' => 'Revisión del estado de las piezas del equipo y de sus conexiones.']
         );
     }
 }

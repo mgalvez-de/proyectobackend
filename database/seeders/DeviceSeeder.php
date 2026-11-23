@@ -35,7 +35,7 @@ class DeviceSeeder extends Seeder
             ],
         ];
 
-        // procesador y tipo solo si la tabla ya tiene esas columnas (falta la migración)
+        // procesador y tipo solo si la tabla ya tiene esas columnas (migración 2026_11_15)
         $hasType = Schema::hasColumn('devices', 'device_type_id');
         $hasProcessor = Schema::hasColumn('devices', 'processor_id');
 
@@ -62,7 +62,8 @@ class DeviceSeeder extends Seeder
                     $data['processor_id'] = Processor::where('model', $processor)->value('id');
                 }
 
-                Device::firstOrCreate(['name' => $name], $data);
+                // updateOrCreate: si el equipo ya existía, le completa el procesador y el tipo
+                Device::updateOrCreate(['name' => $name], $data);
             }
         }
     }

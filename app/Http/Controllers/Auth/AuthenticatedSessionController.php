@@ -28,14 +28,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // el técnico siempre entra a sus tickets (no a la página que quedó guardada de otra sesión)
-        if ($request->user()->rol === 'tecnico') {
-            $request->session()->forget('url.intended');
+        // Solo se respeta la página guardada si es el formulario de un QR (reportar una falla).
+        // Cualquier otra puede ser de la sesión de otra persona en el mismo computador
+        // (ej: un supervisor terminaba en "Mis reportes" del estudiante y veía un 403).
+        $intended = $request->session()->pull('url.intended');
 
-            return redirect()->route('my-tickets.index');
+        if ($intended && str_contains(parse_url($intended, PHP_URL_PATH) ?? '', '/tickets/create')) {
+            return redirect()->to($intended);
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // el dashboard manda a cada rol a su página (técnico → mis tickets, estudiante → mis reportes)
+        return redirect()->route('dashboard');
     }
 
     /**

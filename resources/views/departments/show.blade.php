@@ -842,8 +842,8 @@
             const qrContainer = document.getElementById('deviceQRCode');
 
 
-            // reemplazar esta ip por la dirección ipv4 de tu pc
-            const baseUrl = 'http://192.168.1.4:8000';
+            // QR_BASE_URL en el .env (ej: la IP del PC en la red) o, si no está, la dirección actual de la página
+            const baseUrl = @json(rtrim(config('app.qr_url') ?: url('/'), '/'));
             const ticketUrl = baseUrl + '/tickets/create?device_id=' + id;
 
             qrContainer.innerHTML = '';
